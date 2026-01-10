@@ -1,0 +1,19 @@
+name: linear
+_target_: src.models.heads.linear.LinearHead
+
+projection_dim: 256
+num_layers: 2
+activation: gelu
+dropout: 0.1
+
+feature_aggregation: concat
+normalize_features: true
+
+anomaly_score:
+  method: reconstruction
+  normalize: true
+
+postprocess:
+  gaussian_blur: true
+  blur_sigma: 4.0
+  threshold: null

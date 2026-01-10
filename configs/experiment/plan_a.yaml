@@ -1,0 +1,20 @@
+defaults:
+  - /backbone: dinov2
+  - /head: patchcore
+  - /augmentation: train
+  - /dataset: mvtec
+  - /training: default
+  - /evaluation: default
+
+experiment_name: plan_a_patchcore_baseline
+
+backbone:
+  variant: dinov2_vitb14
+  freeze_backbone: true
+
+head:
+  k_nearest: 9
+  coreset_sampling_ratio: 0.01
+
+training:
+  epochs: 1

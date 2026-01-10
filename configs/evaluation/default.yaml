@@ -1,0 +1,24 @@
+metrics:
+  image_level:
+    - auroc
+    - f1_max
+    - precision_at_threshold
+    - recall_at_threshold
+  pixel_level:
+    - auroc
+    - aupro
+    - iou_at_threshold
+
+threshold:
+  method: auto
+  target_fpr: 0.1
+
+visualization:
+  enabled: true
+  save_heatmaps: true
+  overlay_alpha: 0.5
+  num_samples: 50
+
+report:
+  save_csv: true
+  save_json: true

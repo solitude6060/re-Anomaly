@@ -1,0 +1,19 @@
+name: smt
+_target_: src.data.dataset.SMTDataset
+
+root_path: data/smt
+image_size: 224
+categories: []
+
+split:
+  train: train
+  test: test
+
+dataloader:
+  batch_size: 32
+  num_workers: 8
+  pin_memory: true
+
+roi_extraction:
+  enabled: true
+  method: pin_based

@@ -1,0 +1,46 @@
+# MSFlow Detection Head Configuration
+# Multi-Scale Normalizing Flows for Anomaly Detection
+
+name: msflow
+_target_: src.models.heads.msflow.MSFlowHead
+
+# Flow architecture
+flow:
+  type: realnvp  # realnvp, glow, residual
+  num_blocks: 8  # Number of flow blocks per scale
+  hidden_dims: [256, 256]  # Hidden dimensions in coupling layers
+  
+# Multi-scale settings
+scales:
+  - name: low
+    input_layer: 0  # Corresponds to first output_layer from backbone
+    spatial_size: 56  # Expected spatial size
+  - name: mid
+    input_layer: 1
+    spatial_size: 28
+  - name: high
+    input_layer: 2
+    spatial_size: 14
+
+# Feature processing
+feature_processing:
+  reduce_dim: true
+  projection_dim: 256
+  normalize: true
+
+# Training settings
+training:
+  loss: nll  # Negative log-likelihood
+  weight_per_scale: [1.0, 1.0, 1.0]
+
+# Anomaly score computation
+anomaly_score:
+  aggregation: max  # max, mean, weighted_sum
+  scale_weights: [0.2, 0.3, 0.5]  # Weights for low, mid, high scales
+  normalize: true
+
+# Post-processing
+postprocess:
+  gaussian_blur: true
+  blur_sigma: 4.0
+  upsample_mode: bilinear

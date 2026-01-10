@@ -1,0 +1,30 @@
+name: mvtec
+_target_: src.data.dataset.MVTecDataset
+
+root_path: data/mvtec_anomaly_detection
+image_size: 224
+categories:
+  - bottle
+  - cable
+  - capsule
+  - carpet
+  - grid
+  - hazelnut
+  - leather
+  - metal_nut
+  - pill
+  - screw
+  - tile
+  - toothbrush
+  - transistor
+  - wood
+  - zipper
+
+split:
+  train: train
+  test: test
+
+dataloader:
+  batch_size: 32
+  num_workers: 8
+  pin_memory: true

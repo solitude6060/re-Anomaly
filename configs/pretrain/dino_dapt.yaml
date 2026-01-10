@@ -1,0 +1,32 @@
+dino:
+  teacher_momentum: 0.996
+  student_temp: 0.1
+  teacher_temp: 0.04
+  warmup_teacher_temp_epochs: 30
+  center_momentum: 0.9
+
+training:
+  batch_size: 128
+  epochs: 100
+  learning_rate: 5e-4
+  warmup_epochs: 10
+  min_lr: 1e-6
+
+optimizer:
+  type: adamw
+  weight_decay: 0.04
+  betas: [0.9, 0.999]
+
+data:
+  root_path: data/smt_pretrain
+  image_size: 224
+  num_workers: 16
+  
+augmentation:
+  global_crops_scale: [0.4, 1.0]
+  local_crops_scale: [0.05, 0.4]
+  local_crops_number: 8
+
+checkpoint:
+  save_interval: 10
+  output_dir: pretrained/dino_dapt

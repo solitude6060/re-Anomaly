@@ -1,0 +1,19 @@
+name: simplenet
+_target_: src.models.heads.simplenet.SimpleNetHead
+
+hidden_dims: [256, 256]
+feature_aggregation: concat
+projection_dim: 256
+
+discriminator:
+  num_layers: 3
+  activation: leaky_relu
+  dropout: 0.1
+
+anomaly_score:
+  normalize: true
+
+postprocess:
+  gaussian_blur: true
+  blur_sigma: 4.0
+  threshold: null

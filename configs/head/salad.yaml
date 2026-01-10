@@ -1,0 +1,24 @@
+name: salad
+_target_: src.models.heads.salad.SALADHead
+
+structural_stream:
+  type: simplenet
+  hidden_dims: [256, 256]
+
+logical_stream:
+  type: component_aware
+  hidden_dims: [256, 256]
+  num_components: 10
+
+fusion:
+  method: weighted_sum
+  structural_weight: 0.5
+  logical_weight: 0.5
+
+anomaly_score:
+  normalize: true
+
+postprocess:
+  gaussian_blur: true
+  blur_sigma: 4.0
+  threshold: null

@@ -1,0 +1,29 @@
+defaults:
+  - /backbone: dinov3
+  - /head: salad
+  - /augmentation: train
+  - /dataset: smt
+  - /training: default
+  - /evaluation: default
+
+experiment_name: plan_b_hlsis_dual_stream
+
+backbone:
+  variant: dinov3_vitl14
+  freeze_backbone: true
+  dapt:
+    enabled: true
+    checkpoint_path: pretrained/dinov3_smt_dapt.pth
+
+head:
+  structural_stream:
+    type: simplenet
+  logical_stream:
+    type: component_aware
+  fusion:
+    structural_weight: 0.4
+    logical_weight: 0.6
+
+training:
+  epochs: 50
+  learning_rate: 5e-5

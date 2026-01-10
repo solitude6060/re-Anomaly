@@ -1,0 +1,39 @@
+# PixIO Backbone Configuration
+# Enhanced MAE Vision Transformer from Meta (Dec 2025)
+
+name: pixio
+_target_: src.models.backbones.pixio.PixIOBackbone
+
+# Model variant: pixio_vitb14, pixio_vitl14, pixio_vith14
+variant: pixio_vith14
+
+# HuggingFace model ID (placeholder - update when available)
+model_id: facebook/pixio-huge
+
+# Pretrained weights
+pretrained: true
+pretrained_weights: null  # Path to custom MAE pretrained weights
+
+# Feature extraction settings
+freeze_backbone: true
+output_layers: [10, 20, 31]  # For ViT-H (32 layers)
+
+# Input settings
+image_size: 224
+patch_size: 14
+
+# Output feature dimensions (ViT-H)
+feature_dims: [1280, 1280, 1280]
+
+# PixIO-specific: 8 class tokens
+num_class_tokens: 8
+
+# Interpolation for position embeddings
+interpolate_pos_encoding: true
+
+# MAE Pretraining settings (for DAPT)
+mae_pretrain:
+  enabled: false
+  checkpoint_path: null
+  masking_ratio: 0.75
+  decoder_depth: 8

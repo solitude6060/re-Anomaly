@@ -1,0 +1,30 @@
+# DINOv2 Backbone Configuration
+# Self-supervised Vision Transformer from Meta (2023)
+
+name: dinov2
+_target_: src.models.backbones.dinov2.DINOv2Backbone
+
+# Model variant: dinov2_vits14, dinov2_vitb14, dinov2_vitl14, dinov2_vitg14
+variant: dinov2_vitb14
+
+# HuggingFace model ID
+model_id: facebook/dinov2-base
+
+# Pretrained weights
+pretrained: true
+pretrained_weights: null  # Path to custom weights, null for official
+
+# Feature extraction settings
+freeze_backbone: true
+output_layers: [4, 8, 11]  # Layers to extract features from (0-indexed)
+
+# Input settings
+image_size: 224
+patch_size: 14
+
+# Output feature dimensions (per layer for ViT-B)
+# Layer 4: 768, Layer 8: 768, Layer 11: 768
+feature_dims: [768, 768, 768]
+
+# Interpolation for position embeddings
+interpolate_pos_encoding: true

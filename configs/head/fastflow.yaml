@@ -1,0 +1,24 @@
+name: fastflow
+_target_: src.models.heads.fastflow.FastFlowHead
+
+flow:
+  type: realnvp
+  num_blocks: 8
+  hidden_dims: [256, 256]
+  clamp: 2.0
+
+feature_processing:
+  reduce_dim: true
+  projection_dim: 256
+  normalize: true
+
+training:
+  loss: nll
+
+anomaly_score:
+  normalize: true
+
+postprocess:
+  gaussian_blur: true
+  blur_sigma: 4.0
+  upsample_mode: bilinear

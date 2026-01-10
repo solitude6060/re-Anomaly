@@ -1,0 +1,24 @@
+defaults:
+  - /backbone: pixio
+  - /head: linear
+  - /augmentation: train
+  - /dataset: smt
+  - /training: default
+  - /evaluation: default
+
+experiment_name: plan_c_pixio_linear
+
+backbone:
+  variant: pixio_vith14
+  freeze_backbone: true
+  mae_pretrain:
+    enabled: true
+    checkpoint_path: pretrained/pixio_smt_mae.pth
+
+head:
+  projection_dim: 256
+  num_layers: 2
+
+training:
+  epochs: 30
+  learning_rate: 1e-4

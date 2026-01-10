@@ -1,0 +1,32 @@
+# PatchCore Detection Head Configuration
+# Memory Bank + k-Nearest Neighbors
+
+name: patchcore
+_target_: src.models.heads.patchcore.PatchCoreHead
+
+# Core algorithm settings
+k_nearest: 9  # Number of nearest neighbors for anomaly scoring
+coreset_sampling_ratio: 0.01  # Ratio of features to keep in memory bank
+coreset_method: greedy  # greedy, random
+
+# Feature aggregation
+feature_aggregation: concat  # concat, mean, max
+feature_projection_dim: null  # Optional projection dimension
+
+# Memory bank settings
+memory_bank:
+  max_size: 100000  # Maximum number of features in memory bank
+  normalize: true  # L2 normalize features
+  use_faiss: true  # Use FAISS for efficient kNN search
+  faiss_index_type: IVFFlat  # Flat, IVFFlat, IVFPQ
+
+# Anomaly score computation
+anomaly_score:
+  method: max  # max, mean of k-nearest distances
+  normalize: true  # Normalize scores to [0, 1]
+
+# Post-processing
+postprocess:
+  gaussian_blur: true
+  blur_sigma: 4.0
+  threshold: null  # Auto-calibrated if null

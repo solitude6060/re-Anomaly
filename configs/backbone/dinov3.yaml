@@ -1,0 +1,37 @@
+# DINOv3 / iBOTv2 Backbone Configuration
+# Vision Transformer with Gram Anchoring from Meta (Aug 2025)
+
+name: dinov3
+_target_: src.models.backbones.dinov3.DINOv3Backbone
+
+# Model variant
+variant: dinov3_vitl14
+
+# HuggingFace model ID (placeholder - update when available)
+model_id: facebook/dinov3-large
+
+# Pretrained weights
+pretrained: true
+pretrained_weights: null  # Path to custom DAPT weights
+
+# Feature extraction settings
+freeze_backbone: true
+output_layers: [8, 16, 23]  # For ViT-L (24 layers)
+
+# Input settings
+image_size: 224
+patch_size: 14
+
+# Output feature dimensions (ViT-L)
+feature_dims: [1024, 1024, 1024]
+
+# Gram Anchoring specific
+use_gram_anchoring: true
+
+# Interpolation for position embeddings
+interpolate_pos_encoding: true
+
+# Domain-Adaptive Pretraining (DAPT) settings
+dapt:
+  enabled: false
+  checkpoint_path: null
