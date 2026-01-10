@@ -1,0 +1,82 @@
+{
+  "experiment": "Plan A - DINOv2 + PatchCore on MVTec LOCO",
+  "backbone": "dinov2_vitb14",
+  "head": "patchcore",
+  "image_size": 224,
+  "avg_image_auroc": 0.6945685311704499,
+  "avg_logical_auroc": 0.6495329467638292,
+  "avg_structural_auroc": 0.7584686887218821,
+  "avg_precision_at_100_recall": 0.6339706382016377,
+  "per_category_results": [
+    {
+      "category": "breakfast_box",
+      "image_auroc": 0.7631757905474328,
+      "logical_auroc": 0.7354122371840301,
+      "structural_auroc": 0.7887799564270153,
+      "n_train": 351,
+      "n_test": 275,
+      "n_logical": 83,
+      "n_structural": 90,
+      "n_good": 102,
+      "precision_at_100_recall": 0.6290909090909091,
+      "threshold_100_recall": 0.2782368063926697,
+      "eval_time_seconds": 100.16321516036987
+    },
+    {
+      "category": "juice_bottle",
+      "image_auroc": 0.7983681932924631,
+      "logical_auroc": 0.7534462091699131,
+      "structural_auroc": 0.8662290629244003,
+      "n_train": 335,
+      "n_test": 330,
+      "n_logical": 142,
+      "n_structural": 94,
+      "n_good": 94,
+      "precision_at_100_recall": 0.7173252279635258,
+      "threshold_100_recall": 0.20793727040290833,
+      "eval_time_seconds": 95.42412972450256
+    },
+    {
+      "category": "pushpins",
+      "image_auroc": 0.5685035389282104,
+      "logical_auroc": 0.5106704889313585,
+      "structural_auroc": 0.6334764716407228,
+      "n_train": 372,
+      "n_test": 310,
+      "n_logical": 91,
+      "n_structural": 81,
+      "n_good": 138,
+      "precision_at_100_recall": 0.5548387096774193,
+      "threshold_100_recall": 0.22229225933551788,
+      "eval_time_seconds": 105.62010383605957
+    },
+    {
+      "category": "screw_bag",
+      "image_auroc": 0.6091773336327568,
+      "logical_auroc": 0.5072394399904272,
+      "structural_auroc": 0.7794882047181126,
+      "n_train": 360,
+      "n_test": 341,
+      "n_logical": 137,
+      "n_structural": 82,
+      "n_good": 122,
+      "precision_at_100_recall": 0.6460176991150443,
+      "threshold_100_recall": 0.3105914294719696,
+      "eval_time_seconds": 112.27402424812317
+    },
+    {
+      "category": "splicing_connectors",
+      "image_auroc": 0.7336177994513867,
+      "logical_auroc": 0.7408963585434173,
+      "structural_auroc": 0.7243697478991598,
+      "n_train": 360,
+      "n_test": 312,
+      "n_logical": 108,
+      "n_structural": 85,
+      "n_good": 119,
+      "precision_at_100_recall": 0.6225806451612903,
+      "threshold_100_recall": 0.24266549944877625,
+      "eval_time_seconds": 102.06840229034424
+    }
+  ]
+}
