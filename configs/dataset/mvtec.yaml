@@ -1,7 +1,7 @@
 name: mvtec
 _target_: src.data.dataset.MVTecDataset
 
-root_path: data/mvtec_anomaly_detection
+root_path: data/mvtec_ad
 image_size: 224
 categories:
   - bottle

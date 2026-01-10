@@ -146,10 +146,13 @@ Thumbs.db
 
 # Project specific
 data/
+datasets/
 checkpoints/
 outputs/
 logs/
 wandb/
+exports/
+pretrained/
 *.onnx
 *.pt
 *.pth
@@ -161,6 +164,13 @@ wandb/
 *.zip
 *.tar
 *.gz
+*.tgz
+
+# Datasets (keep configs, exclude actual data)
+mvtec_anomaly_detection/
+mvtec_loco_anomaly_detection/
+MVTec-AD/
+MVTec-LOCO/
 
 # Triton
 model_repository/

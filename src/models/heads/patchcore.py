@@ -67,15 +67,22 @@ class PatchCoreHead(BaseHead):
             indices = torch.randperm(features.shape[0])[:num_samples]
             return features[indices]
 
-        selected_indices = [torch.randint(features.shape[0], (1,)).item()]
+        original_device = features.device
+        features_cpu = features.cpu()
+
+        selected_indices: list[int] = [
+            int(torch.randint(features_cpu.shape[0], (1,)).item())
+        ]
 
         for _ in range(num_samples - 1):
-            selected = features[selected_indices]
-            distances = torch.cdist(features, selected).min(dim=1)[0]
-            new_idx = distances.argmax().item()
+            indices_tensor = torch.tensor(selected_indices)
+            selected = features_cpu[indices_tensor]
+            distances = torch.cdist(features_cpu, selected).min(dim=1)[0]
+            distances[indices_tensor] = -1
+            new_idx = int(distances.argmax().item())
             selected_indices.append(new_idx)
 
-        return features[selected_indices]
+        return features[torch.tensor(selected_indices)].to(original_device)
 
     def _build_faiss_index(self) -> None:
         if self.memory_bank is None:
@@ -105,12 +112,6 @@ class PatchCoreHead(BaseHead):
         anomaly_map = distances.reshape(batch_size, h, w)
         anomaly_score = anomaly_map.amax(dim=(1, 2))
 
-        score_config = self.config.get("anomaly_score", {})
-        if score_config.get("normalize", True):
-            anomaly_score = (anomaly_score - anomaly_score.min()) / (
-                anomaly_score.max() - anomaly_score.min() + 1e-8
-            )
-
         return {"anomaly_score": anomaly_score, "anomaly_map": anomaly_map}
 
     def _compute_distances(self, features: torch.Tensor) -> torch.Tensor:
@@ -120,6 +121,7 @@ class PatchCoreHead(BaseHead):
             )
             return torch.from_numpy(distances).mean(dim=1).to(features.device)
 
+        assert self.memory_bank is not None
         distances = torch.cdist(features, self.memory_bank.to(features.device))
         topk_distances, _ = distances.topk(self.k_nearest, dim=1, largest=False)
         return topk_distances.mean(dim=1)
