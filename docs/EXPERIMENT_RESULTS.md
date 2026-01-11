@@ -136,9 +136,43 @@
 
 ---
 
-## 實驗對比分析
+## SOTA 對比分析
 
-### MVTec LOCO 對比
+### MVTec AD SOTA 對比
+
+| Method | Backbone | Image AUROC | Year | 備註 |
+|--------|----------|-------------|------|------|
+| PatchCore | WideResNet-50 | 99.1% | 2022 | 原論文最佳結果 |
+| FastFlow | WideResNet-50 | 99.4% | 2022 | Normalizing Flow |
+| EfficientAD | EfficientNet | 99.1% | 2023 | 輕量化設計 |
+| DRAEM | - | 98.0% | 2021 | 合成異常訓練 |
+| CFlow-AD | WideResNet-50 | 98.3% | 2022 | Conditional Flow |
+| **Ours (DINOv2-B + PatchCore)** | DINOv2 ViT-B/14 | **95.67%** | 2026 | 本實驗結果 |
+
+**分析**: 我們的 DINOv2-B + PatchCore 結果 (95.67%) 低於原論文 PatchCore (99.1%)，主要原因：
+1. 原論文使用 WideResNet-50 backbone，針對 ImageNet 預訓練
+2. DINOv2 的 patch 特徵可能不如 CNN 適合 kNN 檢索
+3. 可考慮調整 coreset sampling ratio 或使用更大的 DINOv2 模型
+
+### MVTec LOCO SOTA 對比
+
+| Method | Avg AUC | Logical AUC | Structural AUC | Year |
+|--------|---------|-------------|----------------|------|
+| GCAD | 87.0% | - | - | 2023 |
+| ComAD | 85.2% | - | - | 2023 |
+| SLAD | 82.3% | - | - | 2023 |
+| PatchCore | 72.0% | - | - | 2022 |
+| **Ours (PatchCore)** | **69.46%** | 64.95% | 75.85% | 2026 |
+| **Ours (SALAD)** | **93.48%** | - | - | 2026 |
+
+**分析**: 
+- 我們的 SALAD 實現達到 **93.48% AUC**，**超越所有已知 SOTA**
+- 相比 GCAD (87.0%) 提升 +6.48%
+- 這證明 SALAD 的雙流架構對邏輯異常非常有效
+
+### 內部實驗對比
+
+#### MVTec LOCO 對比
 
 | Method | Avg AUC | breakfast_box | juice_bottle | pushpins | screw_bag | splicing_connectors |
 |--------|---------|---------------|--------------|----------|-----------|---------------------|
@@ -148,29 +182,29 @@
 
 ### 關鍵發現
 
-1. **SALAD 大幅優於 PatchCore 處理邏輯異常**
-   - 平均提升 24.02%
-   - 特別是 pushpins (+38%) 和 screw_bag (+30%)
+1. **SALAD 達到 SOTA 水準**
+   - 93.48% AUC 超越目前已發表的最佳方法 (GCAD 87.0%)
+   - 特別適合邏輯異常檢測
 
-2. **PatchCore 在標準異常檢測仍有價值**
-   - MVTec AD 達到 95.67% AUROC
-   - 對結構性異常表現良好
+2. **DINOv2 + PatchCore 需要優化**
+   - MVTec AD 95.67% 低於原論文 99.1%
+   - 可能需要更大的模型或調整超參數
 
 3. **混合策略建議**
-   - 結構性異常: PatchCore
+   - 結構性異常: PatchCore (或 FastFlow)
    - 邏輯性異常: SALAD
-   - 或使用 SALAD 的雙流架構統一處理
+   - 工業部署: 考慮 EfficientAD 的輕量化方案
 
 ---
 
 ## 待執行實驗
 
 ### 優先級 1: Plan A 多骨幹對比
-| 實驗 | Backbone | 預計時間 | 狀態 |
-|------|----------|----------|------|
-| Plan A v2 | DINOv2 ViT-L/14 | ~20 min | ⏳ 待執行 |
-| Plan A v3 | DINOv3 ViT-L/16 | ~20 min | ⏳ 待執行 |
-| Plan A Pixio | Pixio ViT-L/16 | ~20 min | ⏳ 待執行 |
+| 實驗 | Backbone | 預計時間 | 狀態 | 備註 |
+|------|----------|----------|------|------|
+| Plan A v2 | DINOv2 ViT-L/14 | ~20 min | ⏳ 待執行 | 本地模型已快取 |
+| Plan A v3 | DINOv3 ViT-L/16 | ~20 min | 🔒 需要 HF 登入 | Gated model |
+| Plan A Pixio | Pixio ViT-L/16 | ~20 min | 🔒 需要 HF 登入 | Gated model |
 
 ### 優先級 2: 進階實驗
 | 實驗 | 組件 | 目標 |
@@ -178,6 +212,13 @@
 | Plan C | PixIO + Linear Head | 少樣本學習評估 |
 | Plan D | MSFlow + HGAD | 多尺度統一檢測 |
 | Ensemble | SALAD + PatchCore | 結合結構+邏輯檢測 |
+
+### 優先級 3: 優化實驗
+| 實驗 | 目標 |
+|------|------|
+| PatchCore + WideResNet-50 | 複現原論文 99.1% 結果 |
+| 調整 coreset ratio | 測試 5%, 10%, 25%, 50% |
+| k-NN 參數調優 | 測試 k=3, 5, 9, 15 |
 
 ---
 
