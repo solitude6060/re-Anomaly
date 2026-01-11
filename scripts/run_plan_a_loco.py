@@ -3,8 +3,10 @@ Simple evaluation script for Plan A (DINOv2 + PatchCore) on MVTec LOCO AD.
 
 This script runs the full evaluation across all categories and reports metrics.
 LOCO AD has logical and structural anomalies - we track performance on both.
+Supports Weights & Biases logging for experiment tracking.
 """
 
+import argparse
 import json
 import time
 from pathlib import Path
@@ -17,6 +19,7 @@ from tqdm import tqdm
 from src.data.mvtec import MVTecLOCODataset, MVTEC_LOCO_CATEGORIES
 from src.models.backbones.dinov2 import DINOv2Backbone
 from src.models.heads.patchcore import PatchCoreHead
+from src.utils.wandb_logger import WandbLogger, WandbConfig
 
 
 def evaluate_category(
@@ -155,12 +158,97 @@ def evaluate_category(
     }
 
 
+def parse_args():
+    parser = argparse.ArgumentParser(description="Run Plan A evaluation on MVTec LOCO")
+    parser.add_argument(
+        "--data_root",
+        type=str,
+        default="data/mvtec_loco",
+        help="Path to MVTec LOCO dataset",
+    )
+    parser.add_argument(
+        "--output_dir",
+        type=str,
+        default="outputs/plan_a_loco_evaluation",
+        help="Output directory for results",
+    )
+    parser.add_argument(
+        "--image_size",
+        type=int,
+        default=224,
+        help="Image size for evaluation",
+    )
+    parser.add_argument(
+        "--categories",
+        type=str,
+        nargs="+",
+        default=None,
+        help="Specific categories to evaluate (default: all)",
+    )
+    # W&B arguments
+    parser.add_argument(
+        "--wandb",
+        action="store_true",
+        help="Enable Weights & Biases logging",
+    )
+    parser.add_argument(
+        "--wandb_project",
+        type=str,
+        default="re-anomaly",
+        help="W&B project name",
+    )
+    parser.add_argument(
+        "--wandb_name",
+        type=str,
+        default=None,
+        help="W&B run name",
+    )
+    parser.add_argument(
+        "--wandb_tags",
+        type=str,
+        nargs="+",
+        default=None,
+        help="W&B tags",
+    )
+    return parser.parse_args()
+
+
 def main():
+    args = parse_args()
+
     # Configuration
-    data_root = "data/mvtec_loco"
-    image_size = 224
-    output_dir = Path("outputs/plan_a_loco_evaluation")
+    data_root = args.data_root
+    image_size = args.image_size
+    output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
+
+    # Categories to evaluate
+    categories = args.categories or MVTEC_LOCO_CATEGORIES
+
+    # Initialize W&B logger
+    wandb_logger = None
+    if args.wandb:
+        wandb_config = WandbConfig(
+            project=args.wandb_project,
+            name=args.wandb_name or "plan_a_dinov2_patchcore_loco",
+            tags=args.wandb_tags or ["plan_a", "dinov2", "patchcore", "mvtec_loco"],
+            group="plan_a",
+            job_type="eval",
+        )
+        wandb_logger = WandbLogger(config=wandb_config, enabled=True)
+
+        # Log experiment config
+        wandb_logger.log_config(
+            {
+                "experiment": "Plan A - LOCO",
+                "backbone": "dinov2_vitb14",
+                "head": "patchcore",
+                "dataset": "mvtec_loco",
+                "image_size": image_size,
+                "data_root": data_root,
+                "categories": categories,
+            }
+        )
 
     # Device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -187,7 +275,7 @@ def main():
     all_results = []
 
     # Evaluate each category
-    for category in MVTEC_LOCO_CATEGORIES:
+    for idx, category in enumerate(categories):
         print(f"\nEvaluating category: {category}")
 
         # Create fresh head for each category
@@ -229,6 +317,25 @@ def main():
         print(f"  Precision@100%Recall: {result['precision_at_100_recall']:.4f}")
         print(f"  Time: {result['eval_time_seconds']:.1f}s")
 
+        # Log to W&B
+        if wandb_logger:
+            metrics = {
+                f"{category}/image_auroc": result["image_auroc"],
+                f"{category}/precision_at_100_recall": result[
+                    "precision_at_100_recall"
+                ],
+                f"{category}/eval_time_seconds": result["eval_time_seconds"],
+                f"{category}/n_train": result["n_train"],
+                f"{category}/n_test": result["n_test"],
+                f"{category}/n_logical": result["n_logical"],
+                f"{category}/n_structural": result["n_structural"],
+            }
+            if result["logical_auroc"] is not None:
+                metrics[f"{category}/logical_auroc"] = result["logical_auroc"]
+            if result["structural_auroc"] is not None:
+                metrics[f"{category}/structural_auroc"] = result["structural_auroc"]
+            wandb_logger.log(metrics, step=idx)
+
     # Compute averages
     avg_auroc = np.mean([r["image_auroc"] for r in all_results])
     avg_precision = np.mean([r["precision_at_100_recall"] for r in all_results])
@@ -256,6 +363,45 @@ def main():
         "avg_precision_at_100_recall": float(avg_precision),
         "per_category_results": all_results,
     }
+
+    # Log summary to W&B
+    if wandb_logger:
+        summary_metrics = {
+            "avg_image_auroc": avg_auroc,
+            "avg_precision_at_100_recall": avg_precision,
+            "total_categories": len(all_results),
+        }
+        if avg_logical is not None:
+            summary_metrics["avg_logical_auroc"] = avg_logical
+        if avg_structural is not None:
+            summary_metrics["avg_structural_auroc"] = avg_structural
+        wandb_logger.log_summary(summary_metrics)
+
+        # Log results table
+        columns = [
+            "category",
+            "image_auroc",
+            "logical_auroc",
+            "structural_auroc",
+            "precision_at_100_recall",
+            "n_logical",
+            "n_structural",
+            "eval_time",
+        ]
+        data = [
+            [
+                r["category"],
+                r["image_auroc"],
+                r["logical_auroc"],
+                r["structural_auroc"],
+                r["precision_at_100_recall"],
+                r["n_logical"],
+                r["n_structural"],
+                r["eval_time_seconds"],
+            ]
+            for r in all_results
+        ]
+        wandb_logger.log_table("results_table", columns, data)
 
     # Save results
     results_path = output_dir / "results.json"
@@ -292,6 +438,11 @@ def main():
         f"  {'AVERAGE':<20} {avg_auroc:>10.4f} {avg_logical_str:>10} {avg_structural_str:>10}"
     )
     print(f"\nResults saved to: {results_path}")
+
+    # Finish W&B run
+    if wandb_logger:
+        wandb_logger.finish()
+        print("W&B logging complete.")
 
 
 if __name__ == "__main__":

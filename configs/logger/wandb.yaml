@@ -1,0 +1,42 @@
+# Weights & Biases Logger Configuration
+# Use with: python main.py logger=wandb
+
+name: wandb
+enabled: true
+
+# Project settings
+project: re-anomaly
+entity: null  # Set to your W&B username or team name, or leave null for default
+
+# Run settings
+group: null  # Group related runs together (e.g., "plan_a", "plan_b")
+job_type: null  # Type of job (e.g., "train", "eval", "sweep")
+tags: []  # Tags for filtering runs
+notes: null  # Notes about this run
+
+# Logging settings
+log_model: false  # Whether to log model checkpoints to W&B
+log_code: false  # Whether to log code to W&B
+log_frequency: 10  # How often to log metrics (in steps)
+
+# Media logging
+log_images: true  # Log sample images with predictions
+log_images_frequency: 100  # How often to log images
+max_images_per_batch: 8  # Maximum images to log per batch
+
+# Anomaly map visualization
+log_anomaly_maps: true  # Log anomaly heatmaps
+colormap: "jet"  # Colormap for anomaly maps
+
+# Sync settings
+mode: "online"  # "online", "offline", or "disabled"
+save_code: true  # Save code to W&B
+resume: "allow"  # "allow", "must", "never", or run_id to resume
+
+# Sweep configuration (for hyperparameter search)
+sweep:
+  enabled: false
+  method: "bayes"  # "grid", "random", or "bayes"
+  metric:
+    name: "val/image_auroc"
+    goal: "maximize"

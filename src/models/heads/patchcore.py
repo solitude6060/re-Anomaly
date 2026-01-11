@@ -39,6 +39,25 @@ class PatchCoreHead(BaseHead):
         if self.use_faiss:
             self._build_faiss_index()
 
+    def extract_patches(self, features: list[torch.Tensor]) -> torch.Tensor:
+        aggregated = self._aggregate_features(features)
+        batch_size, channels, h, w = aggregated.shape
+        patch_features = aggregated.permute(0, 2, 3, 1).reshape(-1, channels)
+
+        if self.normalize:
+            patch_features = F.normalize(patch_features, p=2, dim=1)
+
+        return patch_features.cpu()
+
+    def fit_from_patches(self, all_patches: torch.Tensor) -> None:
+        if self.coreset_ratio < 1.0:
+            all_patches = self._coreset_sampling(all_patches)
+
+        self.memory_bank = all_patches
+
+        if self.use_faiss:
+            self._build_faiss_index()
+
     def _aggregate_features(self, features: list[torch.Tensor]) -> torch.Tensor:
         if len(features) == 1:
             return features[0]
