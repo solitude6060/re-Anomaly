@@ -1,0 +1,64 @@
+[
+  {
+    "experiment": "dinov3_vitl16 + patchcore",
+    "backbone": "dinov3_vitl16",
+    "head": "patchcore",
+    "epochs": 30,
+    "image_size": 224,
+    "avg_image_auroc": 0.994983948635634,
+    "avg_precision_at_100_recall": 0.9540816326530612,
+    "per_category_results": [
+      {
+        "category": "bottle",
+        "image_auroc": 1.0,
+        "n_train": 209,
+        "n_test": 83,
+        "n_anomalies": 63,
+        "n_normal": 20,
+        "precision_at_100_recall": 1.0,
+        "eval_time_seconds": 63.62626028060913
+      },
+      {
+        "category": "carpet",
+        "image_auroc": 0.9899678972712681,
+        "n_train": 280,
+        "n_test": 117,
+        "n_anomalies": 89,
+        "n_normal": 28,
+        "precision_at_100_recall": 0.9081632653061225,
+        "eval_time_seconds": 112.52306652069092
+      }
+    ]
+  },
+  {
+    "experiment": "dinov3_vitl16 + fastflow",
+    "backbone": "dinov3_vitl16",
+    "head": "fastflow",
+    "epochs": 30,
+    "image_size": 224,
+    "avg_image_auroc": 0.5,
+    "avg_precision_at_100_recall": 0.759859952631037,
+    "per_category_results": [
+      {
+        "category": "bottle",
+        "image_auroc": 0.5,
+        "n_train": 209,
+        "n_test": 83,
+        "n_anomalies": 63,
+        "n_normal": 20,
+        "precision_at_100_recall": 0.7590361445783133,
+        "eval_time_seconds": 58.380377769470215
+      },
+      {
+        "category": "carpet",
+        "image_auroc": 0.5,
+        "n_train": 280,
+        "n_test": 117,
+        "n_anomalies": 89,
+        "n_normal": 28,
+        "precision_at_100_recall": 0.7606837606837606,
+        "eval_time_seconds": 81.72418355941772
+      }
+    ]
+  }
+]

@@ -22,7 +22,7 @@ class FastFlowHead(BaseHead):
         self.normalize = feature_config.get("normalize", True)
 
         self.projection: nn.Module | None = None
-        self.flow: nn.Module | None = None
+        self.flow: FastFlow2D | None = None
 
     def fit(self, features: list[torch.Tensor]) -> None:
         aggregated = self._aggregate_features(features)
@@ -63,16 +63,11 @@ class FastFlowHead(BaseHead):
         if self.normalize:
             aggregated = F.normalize(aggregated, p=2, dim=1)
 
+        assert self.flow is not None
         log_prob = self.flow.log_prob(aggregated)
         anomaly_map = -log_prob
 
         anomaly_score = anomaly_map.amax(dim=(1, 2))
-
-        score_config = self.config.get("anomaly_score", {})
-        if score_config.get("normalize", True):
-            anomaly_score = (anomaly_score - anomaly_score.min()) / (
-                anomaly_score.max() - anomaly_score.min() + 1e-8
-            )
 
         return {"anomaly_score": anomaly_score, "anomaly_map": anomaly_map}
 
