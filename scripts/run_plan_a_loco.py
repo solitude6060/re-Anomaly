@@ -1,15 +1,24 @@
 """
-Simple evaluation script for Plan A (DINOv2 + PatchCore) on MVTec LOCO AD.
+Simple evaluation script for Plan A (Backbone + PatchCore) on MVTec LOCO AD.
 
 This script runs the full evaluation across all categories and reports metrics.
 LOCO AD has logical and structural anomalies - we track performance on both.
 Supports Weights & Biases logging for experiment tracking.
+Supports multiple backbones: DINOv2, DINOv3, PixIO.
 """
+
+import os
+from pathlib import Path
+
+# Set HuggingFace cache to project local directory BEFORE importing transformers
+_PROJECT_ROOT = Path(__file__).parent.parent
+_HF_CACHE = _PROJECT_ROOT / ".cache" / "huggingface"
+os.environ["HF_HOME"] = str(_HF_CACHE)
+os.environ["TRANSFORMERS_CACHE"] = str(_HF_CACHE / "hub")
 
 import argparse
 import json
 import time
-from pathlib import Path
 
 import numpy as np
 import torch
@@ -18,8 +27,57 @@ from tqdm import tqdm
 
 from src.data.mvtec import MVTecLOCODataset, MVTEC_LOCO_CATEGORIES
 from src.models.backbones.dinov2 import DINOv2Backbone
+from src.models.backbones.dinov3 import DINOv3Backbone
+from src.models.backbones.pixio import PixIOBackbone
 from src.models.heads.patchcore import PatchCoreHead
 from src.utils.wandb_logger import WandbLogger, WandbConfig
+
+
+BACKBONE_CONFIGS = {
+    "dinov2_vitb14": {
+        "class": DINOv2Backbone,
+        "config": {
+            "variant": "dinov2_vitb14",
+            "model_id": "facebook/dinov2-base",
+            "patch_size": 14,
+            "output_layers": [4, 8, 11],
+        },
+    },
+    "dinov2_vitl14": {
+        "class": DINOv2Backbone,
+        "config": {
+            "variant": "dinov2_vitl14",
+            "model_id": "facebook/dinov2-large",
+            "patch_size": 14,
+            "output_layers": [8, 11, 17, 23],
+        },
+    },
+    "dinov3_vitl16": {
+        "class": DINOv3Backbone,
+        "config": {
+            "variant": "dinov3_vitl16",
+            "patch_size": 16,
+            "output_layers": [8, 11, 17, 23],
+        },
+    },
+    "dinov3_convnext_large": {
+        "class": DINOv3Backbone,
+        "config": {
+            "variant": "dinov3_convnext_large",
+            "patch_size": 32,
+            "output_layers": [4, 8, 11],
+        },
+    },
+    "pixio_vitl16": {
+        "class": PixIOBackbone,
+        "config": {
+            "variant": "pixio_vitl16",
+            "patch_size": 16,
+            "output_layers": [8, 11, 17, 23],
+            "image_size": 224,
+        },
+    },
+}
 
 
 def evaluate_category(
@@ -185,7 +243,13 @@ def parse_args():
         default=None,
         help="Specific categories to evaluate (default: all)",
     )
-    # W&B arguments
+    parser.add_argument(
+        "--backbone",
+        type=str,
+        default="dinov2_vitb14",
+        choices=list(BACKBONE_CONFIGS.keys()),
+        help="Backbone to use (default: dinov2_vitb14)",
+    )
     parser.add_argument(
         "--wandb",
         action="store_true",
@@ -216,32 +280,38 @@ def parse_args():
 def main():
     args = parse_args()
 
-    # Configuration
     data_root = args.data_root
     image_size = args.image_size
     output_dir = Path(args.output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Categories to evaluate
     categories = args.categories or MVTEC_LOCO_CATEGORIES
 
-    # Initialize W&B logger
+    backbone_name = args.backbone
+    if backbone_name not in BACKBONE_CONFIGS:
+        raise ValueError(
+            f"Unknown backbone: {backbone_name}. Available: {list(BACKBONE_CONFIGS.keys())}"
+        )
+    backbone_cfg = BACKBONE_CONFIGS[backbone_name]
+
     wandb_logger = None
     if args.wandb:
+        backbone_family = backbone_name.split("_")[0]
         wandb_config = WandbConfig(
             project=args.wandb_project,
-            name=args.wandb_name or "plan_a_dinov2_patchcore_loco",
-            tags=args.wandb_tags or ["plan_a", "dinov2", "patchcore", "mvtec_loco"],
+            name=args.wandb_name or f"plan_a_{backbone_name}_patchcore_loco",
+            tags=args.wandb_tags
+            or ["plan_a", backbone_family, backbone_name, "patchcore", "mvtec_loco"],
             group="plan_a",
             job_type="eval",
         )
         wandb_logger = WandbLogger(config=wandb_config, enabled=True)
 
-        # Log experiment config
         wandb_logger.log_config(
             {
                 "experiment": "Plan A - LOCO",
-                "backbone": "dinov2_vitb14",
+                "backbone": backbone_name,
+                "backbone_config": backbone_cfg["config"],
                 "head": "patchcore",
                 "dataset": "mvtec_loco",
                 "image_size": image_size,
@@ -250,23 +320,19 @@ def main():
             }
         )
 
-    # Device
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     print(f"Using device: {device}")
 
-    # Initialize backbone
-    print("Loading DINOv2 backbone...")
+    print(f"Loading {backbone_name} backbone...")
+    BackboneClass = backbone_cfg["class"]
     backbone_config = {
-        "variant": "dinov2_vitb14",
-        "model_id": "facebook/dinov2-base",
+        **backbone_cfg["config"],
         "pretrained": True,
         "freeze_backbone": True,
         "image_size": image_size,
-        "patch_size": 14,
-        "output_layers": [4, 8, 11],
         "interpolate_pos_encoding": True,
     }
-    backbone = DINOv2Backbone(backbone_config)
+    backbone = BackboneClass(backbone_config)
     backbone = backbone.to(device)
     backbone.eval()
     print("Backbone loaded.")
@@ -351,8 +417,9 @@ def main():
     avg_structural = np.mean(structural_aurocs) if structural_aurocs else None
 
     summary = {
-        "experiment": "Plan A - DINOv2 + PatchCore on MVTec LOCO",
-        "backbone": "dinov2_vitb14",
+        "experiment": f"Plan A - {backbone_name} + PatchCore on MVTec LOCO",
+        "backbone": backbone_name,
+        "backbone_config": backbone_cfg["config"],
         "head": "patchcore",
         "image_size": image_size,
         "avg_image_auroc": float(avg_auroc),
@@ -411,7 +478,7 @@ def main():
     print("\n" + "=" * 60)
     print("FINAL RESULTS - MVTec LOCO AD")
     print("=" * 60)
-    print(f"\nBackbone: DINOv2-ViT-B/14")
+    print(f"\nBackbone: {backbone_name}")
     print(f"Head: PatchCore (k=9, coreset=10%)")
     print(f"\nPer-category Results:")
     print("-" * 60)

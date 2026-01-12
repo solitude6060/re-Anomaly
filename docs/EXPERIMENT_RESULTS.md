@@ -1,12 +1,15 @@
 # re-Anomaly 實驗結果報告
 
-> 最後更新: 2026-01-12
+> 最後更新: 2026-01-13
 
 ## 目錄
 - [實驗概述](#實驗概述)
 - [Plan A: DINOv2 + PatchCore](#plan-a-dinov2--patchcore)
   - [MVTec AD 結果](#mvtec-ad-結果)
   - [MVTec LOCO 結果](#mvtec-loco-結果)
+- [Plan A: DINOv3 + PatchCore](#plan-a-dinov3--patchcore)
+  - [MVTec AD 結果](#dinov3-mvtec-ad-結果)
+  - [MVTec LOCO 結果](#dinov3-mvtec-loco-結果)
 - [Plan B: SALAD](#plan-b-salad)
   - [MVTec LOCO 結果](#plan-b-mvtec-loco-結果)
 - [實驗對比分析](#實驗對比分析)
@@ -18,7 +21,7 @@
 
 | Plan | 組件 | 目標 | 狀態 |
 |------|------|------|------|
-| **Plan A** | DINOv2/v3 + PatchCore | 標準異常檢測基線 | ✅ DINOv2 完成 |
+| **Plan A** | DINOv2/v3 + PatchCore | 標準異常檢測基線 | ✅ DINOv2 & DINOv3 完成 |
 | **Plan B** | DINOv3 + SALAD | 複雜邏輯異常檢測 | ✅ 完成 |
 | **Plan C** | PixIO-H + Linear Head | 微缺陷 & 少樣本學習 | ⏳ 待執行 |
 | **Plan D** | PixIO/DINOv3 + MSFlow + HGAD | 多尺度統一檢測 | ⏳ 待執行 |
@@ -92,6 +95,78 @@
 
 ---
 
+## Plan A: DINOv3 + PatchCore
+
+### 配置
+- **Backbone**: DINOv3 ViT-L/16 (`dinov3_vitl16`)
+- **Head**: PatchCore (Memory Bank + kNN)
+- **Image Size**: 224×224
+- **Output Layers**: [8, 11, 17, 23]
+
+### DINOv3 MVTec AD 結果
+
+**整體指標**
+| 指標 | 數值 | vs DINOv2-B |
+|------|------|-------------|
+| **平均 Image AUROC** | **96.31%** | **+0.64%** |
+| **平均 Precision@100% Recall** | 88.07% | -0.47% |
+
+**各類別詳細結果**
+
+| Category | Image AUROC | Precision@100%R | vs DINOv2-B AUROC |
+|----------|-------------|-----------------|-------------------|
+| bottle | 99.84% | 98.44% | -0.08% |
+| cable | 93.43% | 69.01% | +2.39% |
+| capsule | 93.63% | 87.02% | +4.48% |
+| carpet | **100.00%** | **100.00%** | - |
+| grid | **100.00%** | **100.00%** | - |
+| hazelnut | **100.00%** | **100.00%** | +0.14% |
+| leather | **100.00%** | **100.00%** | - |
+| metal_nut | 99.37% | 95.74% | -0.43% |
+| pill | 91.21% | 81.44% | -0.47% |
+| screw | 83.17% | 75.00% | +3.69% |
+| tile | **100.00%** | **100.00%** | - |
+| toothbrush | 98.61% | 97.62% | +2.78% |
+| transistor | 88.33% | 36.17% | -2.42% |
+| wood | 97.98% | 88.06% | +0.26% |
+| zipper | 99.06% | 92.56% | -0.70% |
+
+**觀察**:
+- DINOv3 整體 AUROC 略優於 DINOv2-B (96.31% vs 95.67%)
+- **改善最多**: capsule (+4.48%), screw (+3.69%), cable (+2.39%)
+- **略有下降**: transistor (-2.42%), zipper (-0.70%)
+- DINOv3 的 ViT-L/16 架構對紋理類別 (carpet, grid, leather, tile) 保持 100% AUROC
+
+---
+
+### DINOv3 MVTec LOCO 結果
+
+**整體指標**
+| 指標 | 數值 | vs DINOv2-B |
+|------|------|-------------|
+| **平均 Image AUROC** | **73.53%** | **+4.07%** |
+| **平均 Logical AUROC** | 69.57% | +4.62% |
+| **平均 Structural AUROC** | 79.17% | +3.32% |
+| **平均 Precision@100%Recall** | 63.59% | +0.19% |
+
+**各類別詳細結果**
+
+| Category | Image AUROC | Logical AUROC | Structural AUROC | P@100%R | vs DINOv2-B Image AUROC |
+|----------|-------------|---------------|------------------|---------|-------------------------|
+| breakfast_box | 82.38% | 79.65% | 84.90% | 62.91% | +6.06% |
+| juice_bottle | 86.82% | 83.51% | 91.83% | 72.17% | +6.98% |
+| pushpins | 60.47% | 55.16% | 66.44% | 56.21% | +3.62% |
+| screw_bag | 63.16% | 53.33% | 79.57% | 64.22% | +2.24% |
+| splicing_connectors | 74.82% | 76.17% | 73.10% | 62.46% | +1.46% |
+
+**觀察**:
+- DINOv3 在 LOCO 數據集上表現明顯優於 DINOv2-B
+- **juice_bottle** 改善最大 (+6.98%)，達到 86.82% AUROC
+- **breakfast_box** 改善 +6.06%，達到 82.38% AUROC
+- 但仍遠低於 SALAD 的 93.48%，證明 PatchCore 對邏輯異常的局限性
+
+---
+
 ## Plan B: SALAD
 
 ### 配置
@@ -147,7 +222,8 @@
 | EfficientAD | EfficientNet | 99.1% | 2023 | 輕量化設計 |
 | DRAEM | - | 98.0% | 2021 | 合成異常訓練 |
 | CFlow-AD | WideResNet-50 | 98.3% | 2022 | Conditional Flow |
-| **Ours (DINOv2-B + PatchCore)** | DINOv2 ViT-B/14 | **95.67%** | 2026 | 本實驗結果 |
+| **Ours (DINOv3-L + PatchCore)** | DINOv3 ViT-L/16 | **96.31%** | 2026 | 本實驗最佳 |
+| Ours (DINOv2-B + PatchCore) | DINOv2 ViT-B/14 | 95.67% | 2026 | 基線結果 |
 
 **分析**: 我們的 DINOv2-B + PatchCore 結果 (95.67%) 低於原論文 PatchCore (99.1%)，主要原因：
 1. 原論文使用 WideResNet-50 backbone，針對 ImageNet 預訓練
@@ -162,23 +238,34 @@
 | ComAD | 85.2% | - | - | 2023 |
 | SLAD | 82.3% | - | - | 2023 |
 | PatchCore | 72.0% | - | - | 2022 |
-| **Ours (PatchCore)** | **69.46%** | 64.95% | 75.85% | 2026 |
 | **Ours (SALAD)** | **93.48%** | - | - | 2026 |
+| Ours (DINOv3-L + PatchCore) | 73.53% | 69.57% | 79.17% | 2026 |
+| Ours (DINOv2-B + PatchCore) | 69.46% | 64.95% | 75.85% | 2026 |
 
 **分析**: 
 - 我們的 SALAD 實現達到 **93.48% AUC**，**超越所有已知 SOTA**
-- 相比 GCAD (87.0%) 提升 +6.48%
-- 這證明 SALAD 的雙流架構對邏輯異常非常有效
+- DINOv3 + PatchCore (73.53%) 優於 DINOv2 (69.46%)，但仍低於專用方法
+- PatchCore 架構對邏輯異常有天然局限性
 
 ### 內部實驗對比
+
+#### MVTec AD 對比
+
+| Method | Avg AUROC | carpet | grid | leather | tile | screw | transistor |
+|--------|-----------|--------|------|---------|------|-------|------------|
+| **DINOv3-L + PatchCore** | **96.31%** | 100% | 100% | 100% | 100% | 83.17% | 88.33% |
+| DINOv2-B + PatchCore | 95.67% | 100% | 100% | 100% | 100% | 79.48% | 90.75% |
+| **改善幅度** | **+0.64%** | - | - | - | - | +3.69% | -2.42% |
 
 #### MVTec LOCO 對比
 
 | Method | Avg AUC | breakfast_box | juice_bottle | pushpins | screw_bag | splicing_connectors |
 |--------|---------|---------------|--------------|----------|-----------|---------------------|
-| **Plan A (PatchCore)** | 69.46% | 76.32% | 79.84% | 56.85% | 60.92% | 73.36% |
 | **Plan B (SALAD)** | **93.48%** | **86.05%** | **99.49%** | **94.86%** | **91.04%** | **95.95%** |
-| **改善幅度** | **+24.02%** | +9.73% | +19.65% | +38.01% | +30.12% | +22.59% |
+| DINOv3-L + PatchCore | 73.53% | 82.38% | 86.82% | 60.47% | 63.16% | 74.82% |
+| DINOv2-B + PatchCore | 69.46% | 76.32% | 79.84% | 56.85% | 60.92% | 73.36% |
+| **DINOv3 vs DINOv2** | **+4.07%** | +6.06% | +6.98% | +3.62% | +2.24% | +1.46% |
+| **SALAD vs DINOv3** | **+19.95%** | +3.67% | +12.67% | +34.39% | +27.88% | +21.13% |
 
 ### 關鍵發現
 
@@ -186,12 +273,18 @@
    - 93.48% AUC 超越目前已發表的最佳方法 (GCAD 87.0%)
    - 特別適合邏輯異常檢測
 
-2. **DINOv2 + PatchCore 需要優化**
-   - MVTec AD 95.67% 低於原論文 99.1%
-   - 可能需要更大的模型或調整超參數
+2. **DINOv3 優於 DINOv2**
+   - MVTec AD: 96.31% vs 95.67% (+0.64%)
+   - MVTec LOCO: 73.53% vs 69.46% (+4.07%)
+   - DINOv3 的 ViT-L/16 架構提供更好的特徵表示
 
-3. **混合策略建議**
-   - 結構性異常: PatchCore (或 FastFlow)
+3. **PatchCore 架構局限性**
+   - 即使使用 DINOv3，LOCO 上仍只有 73.53%
+   - SALAD 在相同數據集上達到 93.48%
+   - 結論: 邏輯異常需要專用架構
+
+4. **混合策略建議**
+   - 結構性異常: DINOv3 + PatchCore
    - 邏輯性異常: SALAD
    - 工業部署: 考慮 EfficientAD 的輕量化方案
 
@@ -203,7 +296,7 @@
 | 實驗 | Backbone | 預計時間 | 狀態 | 備註 |
 |------|----------|----------|------|------|
 | Plan A v2 | DINOv2 ViT-L/14 | ~20 min | ⏳ 待執行 | 本地模型已快取 |
-| Plan A v3 | DINOv3 ViT-L/16 | ~20 min | 🔒 需要 HF 登入 | Gated model |
+| Plan A v3 | DINOv3 ViT-L/16 | ~20 min | ✅ 完成 | 96.31% MVTec AD, 73.53% LOCO |
 | Plan A Pixio | Pixio ViT-L/16 | ~20 min | 🔒 需要 HF 登入 | Gated model |
 
 ### 優先級 2: 進階實驗

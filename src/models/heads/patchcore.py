@@ -86,22 +86,21 @@ class PatchCoreHead(BaseHead):
             indices = torch.randperm(features.shape[0])[:num_samples]
             return features[indices]
 
-        original_device = features.device
-        features_cpu = features.cpu()
+        device = features.device
+        n = features.shape[0]
 
-        selected_indices: list[int] = [
-            int(torch.randint(features_cpu.shape[0], (1,)).item())
-        ]
+        selected_indices = [int(torch.randint(n, (1,)).item())]
+        min_distances = torch.full((n,), float("inf"), device=device)
 
         for _ in range(num_samples - 1):
-            indices_tensor = torch.tensor(selected_indices)
-            selected = features_cpu[indices_tensor]
-            distances = torch.cdist(features_cpu, selected).min(dim=1)[0]
-            distances[indices_tensor] = -1
-            new_idx = int(distances.argmax().item())
+            last_selected = features[selected_indices[-1] : selected_indices[-1] + 1]
+            distances_to_last = torch.cdist(features, last_selected).squeeze(1)
+            min_distances = torch.minimum(min_distances, distances_to_last)
+            min_distances[selected_indices[-1]] = -1
+            new_idx = int(min_distances.argmax().item())
             selected_indices.append(new_idx)
 
-        return features[torch.tensor(selected_indices)].to(original_device)
+        return features[torch.tensor(selected_indices, device=device)]
 
     def _build_faiss_index(self) -> None:
         if self.memory_bank is None:

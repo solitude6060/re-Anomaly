@@ -32,3 +32,25 @@ class BaseBackbone(ABC, nn.Module):
     @property
     def device(self) -> torch.device:
         return next(self.parameters()).device
+
+    def _move_inner_model(self, *args, **kwargs) -> None:
+        """Move self.model if it exists (HuggingFace models loaded separately)."""
+        if hasattr(self, "model") and self.model is not None:
+            self.model = self.model.to(*args, **kwargs)
+
+    def to(self, *args, **kwargs):
+        result = super().to(*args, **kwargs)
+        self._move_inner_model(*args, **kwargs)
+        return result
+
+    def cuda(self, device=None):
+        result = super().cuda(device)
+        if hasattr(self, "model") and self.model is not None:
+            self.model = self.model.cuda(device)
+        return result
+
+    def cpu(self):
+        result = super().cpu()
+        if hasattr(self, "model") and self.model is not None:
+            self.model = self.model.cpu()
+        return result
