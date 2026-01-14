@@ -1,0 +1,57 @@
+# Dinomaly Detection Head Configuration
+# Reconstruction-based with LinearAttention2 decoder (CVPR 2025)
+# Paper: "Dinomaly: The Less Is More Philosophy in Multi-Class Unsupervised Anomaly Detection"
+# Reference: https://github.com/caoyunkang/Dinomaly
+
+name: dinomaly
+_target_: src.models.heads.dinomaly.DinomalyHead
+
+# Model architecture
+embed_dim: 1024  # Will be auto-detected from backbone features
+num_heads: 16  # Number of attention heads in decoder
+decoder_depth: 8  # Number of LinearAttention2 blocks
+mlp_ratio: 4.0  # MLP hidden dim = embed_dim * mlp_ratio
+
+# Bottleneck (noise injection)
+bottleneck_drop: 0.0  # Dropout rate in bottleneck
+
+# Target encoder layers for reconstruction
+# These define which backbone layers to use for feature extraction
+target_layers: [2, 3, 4, 5, 6, 7, 8, 9]
+
+# Feature fusion configuration
+# Defines which layers to fuse for encoder/decoder comparison
+# Each inner list specifies layer indices to average
+fuse_layer_encoder: [[0, 1, 2, 3, 4, 5, 6, 7]]
+fuse_layer_decoder: [[0, 1, 2, 3, 4, 5, 6, 7]]
+
+# Neighbor masking to prevent local copying
+# Set to 0 to disable, positive values create local mask
+mask_neighbor_size: 0
+
+# Token handling
+remove_class_token: false
+num_register_tokens: 4  # DINOv3 has 4 register tokens
+
+# Dropout rates
+drop_rate: 0.0
+attn_drop_rate: 0.0
+drop_path_rate: 0.0
+
+# Feature normalization
+normalize_features: true
+
+# Image dimensions
+image_size: 448  # Input image size
+patch_size: 16  # Patch size (matches DINOv3)
+
+# Anomaly score computation
+anomaly_score:
+  method: max  # max, mean over spatial dimensions
+  multi_scale_fusion: mean  # How to combine multi-scale anomaly maps
+
+# Post-processing
+postprocess:
+  gaussian_blur: true
+  blur_sigma: 4.0
+  threshold: null  # Auto-calibrated if null

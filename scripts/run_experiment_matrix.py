@@ -29,6 +29,7 @@ from src.models.heads.fastflow import FastFlowHead
 from src.models.heads.simplenet import SimpleNetHead
 from src.models.heads.msflow import MSFlowHead
 from src.models.heads.rectflow import RectFlowHead
+from src.models.heads.dinomaly import DinomalyHead
 
 
 @dataclass
@@ -160,6 +161,24 @@ HEAD_REGISTRY = {
         },
         "trainable": True,
     },
+    "dinomaly": {
+        "class": DinomalyHead,
+        "config": {
+            "embed_dim": 1024,
+            "num_heads": 16,
+            "decoder_depth": 8,
+            "mlp_ratio": 4.0,
+            "bottleneck_drop": 0.2,
+            "drop_rate": 0.0,
+            "attn_drop_rate": 0.0,
+            "drop_path_rate": 0.0,
+            "normalize_features": True,
+            "num_register_tokens": 4,
+            "fuse_layer_encoder": [[0, 1], [2, 3]],
+            "fuse_layer_decoder": [[0, 1, 2, 3], [4, 5, 6, 7]],
+        },
+        "trainable": True,
+    },
 }
 
 
@@ -288,6 +307,9 @@ def compute_head_loss(
         return loss
 
     elif head_name == "rectflow":
+        return head.compute_training_loss(features)
+
+    elif head_name == "dinomaly":
         return head.compute_training_loss(features)
 
     return torch.tensor(0.0, device=device)
