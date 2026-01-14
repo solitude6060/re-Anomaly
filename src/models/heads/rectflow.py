@@ -67,32 +67,28 @@ class RectFlowHead(BaseHead):
         if self.normalize:
             aggregated = F.normalize(aggregated, p=2, dim=1)
 
-        reconstructed = self._rectified_flow_transport(aggregated)
-
-        reconstruction_error = ((aggregated - reconstructed) ** 2).mean(dim=1)
-        anomaly_map = reconstruction_error
+        anomaly_map = self._compute_velocity_anomaly(aggregated)
         anomaly_score = anomaly_map.amax(dim=(1, 2))
-
-        score_config = self.config.get("anomaly_score", {})
-        if score_config.get("normalize", True):
-            anomaly_score = (anomaly_score - anomaly_score.min()) / (
-                anomaly_score.max() - anomaly_score.min() + 1e-8
-            )
 
         return {"anomaly_score": anomaly_score, "anomaly_map": anomaly_map}
 
-    def _rectified_flow_transport(self, x: torch.Tensor) -> torch.Tensor:
-        z = torch.randn_like(x)
+    def _compute_velocity_anomaly(self, x: torch.Tensor) -> torch.Tensor:
+        """
+        Transport x to noise z using learned velocity v = x_1 - x_0 (data - noise).
+        Normal samples converge to Gaussian (low ||z||), anomalies don't (high ||z||).
+        """
+        num_steps = max(self.inference_steps, 20)
+        dt = 1.0 / num_steps
+        z = x.clone()
 
-        dt = 1.0 / self.inference_steps
-        x_t = z
+        for step in range(num_steps):
+            t = torch.ones(x.shape[0], device=x.device) * (1.0 - step * dt)
+            v = self.velocity_net(z, t)
+            z = z - v * dt
 
-        for step in range(self.inference_steps):
-            t = torch.ones(x.shape[0], device=x.device) * (step * dt)
-            v = self.velocity_net(x_t, t)
-            x_t = x_t + v * dt
+        neg_log_pz = 0.5 * (z**2).sum(dim=1)
 
-        return x_t
+        return neg_log_pz
 
     def compute_training_loss(self, features: list[torch.Tensor]) -> torch.Tensor:
         aggregated = self._aggregate_features(features)
