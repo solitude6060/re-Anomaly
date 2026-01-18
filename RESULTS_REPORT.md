@@ -45,55 +45,80 @@
 
 ## 模型實作狀態
 
-### Backbones (6/6 完成)
+### Backbones (8/8 完成)
 
 | Backbone | 實作檔案 | 狀態 | 預訓練 | 測試狀態 |
 |----------|----------|------|--------|----------|
 | **DINOv3-L** | `dinov3.py` | ✅ 完成 | HuggingFace | ✅ 已測試 |
-| **DINOv2-L** | `dinov2.py` | ✅ 完成 | HuggingFace | ⚠️ 部分測試 |
-| **PixIO** | `pixio.py` | ✅ 完成 | HuggingFace | ❌ 未測試 |
+| **DINOv2-L** | `dinov2.py` | ✅ 完成 | HuggingFace | ⚠️ smoke (1/15) |
+| **PixIO** | `pixio.py` | ✅ 完成 | HuggingFace | ❌ 未在 registry |
 | **CLIP ViT-L/14** | `clip.py` | ✅ 完成 | OpenAI/OpenCLIP | ✅ 已測試 |
-| **SigLIP SO400M** | `clip.py` | ✅ 完成 | OpenCLIP | ❌ 未測試 |
+| **SigLIP SO400M** | `clip.py` | ✅ 完成 | OpenCLIP | ❌ 未在 registry |
 | **ConvNeXt-Tiny** | `convnext.py` | ✅ 完成 | timm (IN22k) | ✅ 已測試 |
+| **ConvNeXt-Base** | `convnext.py` | ✅ 完成 | timm (IN22k) | ⚠️ 部分測試 |
 | **Swin-Base** | `swin.py` | ✅ 完成 | HuggingFace | ✅ 已測試 |
 
 ### Heads (10/10 完成)
 
 | Head | 實作檔案 | 類型 | 訓練需求 | 測試狀態 |
 |------|----------|------|----------|----------|
-| **Dinomaly** | `dinomaly.py` | Reconstruction | 20+ epochs | ✅ 已測試 |
-| **PatchCore** | `patchcore.py` | Memory Bank | 無 | ✅ 已測試 |
-| **MambaAD** | `mambaad.py` | SSM Decoder | 20+ epochs | ✅ 已修復 |
-| **AFR-CLIP** | `afrclip.py` | Zero-shot | 無 | ✅ 已修復 |
-| **SALAD** | `salad.py` | Dual-stream | 外部依賴 | ⚠️ 需設置 |
-| **FastFlow** | `fastflow.py` | Normalizing Flow | 20+ epochs | ⚠️ 部分測試 |
-| **MSFlow** | `msflow.py` | Multi-scale Flow | 20+ epochs | ❌ 未測試 |
-| **RectFlow** | `rectflow.py` | ODE Flow | 20+ epochs | ⚠️ 部分測試 |
-| **SimpleNet** | `simplenet.py` | Discriminator | 20+ epochs | ⚠️ 部分測試 |
+| **Dinomaly** | `dinomaly.py` | Reconstruction | 20+ epochs | ✅ 15/15 |
+| **PatchCore** | `patchcore.py` | Memory Bank | 無 | ✅ 15/15 |
+| **MambaAD** | `mambaad.py` | SSM Decoder | 20+ epochs | ⚠️ 低性能 (1/15) |
+| **AFR-CLIP** | `afrclip.py` | Zero-shot | 無 | ⚠️ smoke (1/15) |
+| **SALAD** | `salad.py` | Dual-stream | 外部依賴 | ✅ LOCO 5/5 |
+| **FastFlow** | `fastflow.py` | Normalizing Flow | 20+ epochs | ✅ 15/15 + smoke |
+| **MSFlow** | `msflow.py` | Multi-scale Flow | 20+ epochs | ❌ 訓練 bug |
+| **RectFlow** | `rectflow.py` | ODE Flow | 20+ epochs | ✅ 15/15 + smoke |
+| **SimpleNet** | `simplenet.py` | Discriminator | 20+ epochs | ✅ 15/15 + smoke |
 | **Linear** | `linear.py` | Baseline | 20+ epochs | ❌ 未測試 |
 
 ---
 
 ## 實驗結果
 
-### MVTec AD 完整結果
+### 全部實驗與資料集比較
 
-#### 按組合分類
+| Dataset | Backbone | Head | Image | Epochs | Coverage | Avg AUROC | Result | Notes |
+|---|---|---|---:|---:|---:|---:|---|---|
+| MVTec AD | dinov2_vitl14 | patchcore | 224 | 20 | 1/15 | 100.00% | `results/exp_dinov2l_patchcore/dinov2_vitl14_patchcore/results.json` | smoke |
+| MVTec AD | dinov3_vitl16 | rectflow | 224 | 20 | 1/15 | 100.00% | `results/exp_rectflow/dinov3_vitl16_rectflow/results.json` | smoke |
+| MVTec AD | dinov3_vitl16 | fastflow | 224 | 20 | 1/15 | 99.92% | `results/exp_fastflow/dinov3_vitl16_fastflow/results.json` | smoke |
+| MVTec AD | dinov3_vitl16 | fastflow | 224 | 50 | 2/15 | 99.90% | `results/quick_test_v2/dinov3_vitl16_fastflow/results.json` | partial/smoke |
+| MVTec AD | dinov3_vitl16 | patchcore | 224 | 50 | 2/15 | 99.50% | `results/quick_test_v2/dinov3_vitl16_patchcore/results.json` | partial/smoke |
+| MVTec AD | dinov3_vitl16 | patchcore | 224 | 30 | 2/15 | 99.50% | `results/quick_test/dinov3_vitl16_patchcore/results.json` | partial/smoke |
+| MVTec AD | dinov3_vitl16 | dinomaly | 224 | 1 | 1/15 | 99.21% | `results/experiment_matrix/dinov3_vitl16_dinomaly/results.json` | smoke |
+| MVTec AD | dinov3_vitl16 | dinomaly | 224 | 200 | 15/15 | 97.34% | `results/dinomaly_full_v3/dinov3_vitl16_dinomaly/results.json` | full |
+| MVTec AD | dinov3_vitl16 | patchcore | 448 | 200 | 15/15 | 96.85% | `results/patchcore_448/dinov3_vitl16_patchcore/results.json` | full |
+| MVTec AD | dinov3_vitl16 | patchcore | 224 | 100 | 15/15 | 96.51% | `results/dinov3_full/dinov3_vitl16_patchcore/results.json` | full |
+| MVTec AD | dinov3_vitl16 | patchcore | 224 |  | 15/15 | 96.31% | `results/plan_a_mvtec_ad_dinov3/results.json` | full |
+| MVTec AD | dinov3_vitl16 | fastflow | 224 | 100 | 15/15 | 96.14% | `results/dinov3_full/dinov3_vitl16_fastflow/results.json` | full |
+| MVTec AD | dinov2_vitb14 | patchcore | 224 |  | 15/15 | 95.67% | `results/plan_a_mvtec_ad/results.json` | full |
+| MVTec AD | dinov3_vitl16 | dinomaly | 224 | 200 | 1/15 | 89.59% | `results/dinomaly_screw_v2/dinov3_vitl16_dinomaly/results.json` | partial/smoke |
+| MVTec AD | swin_base | patchcore | 224 | 100 | 15/15 | 87.73% | `results/swin_full/swin_base_patchcore/results.json` | full |
+| MVTec AD | swin_base | fastflow | 224 | 100 | 15/15 | 87.65% | `results/swin_full/swin_base_fastflow/results.json` | full |
+| MVTec AD | dinov3_vitl16 | simplenet | 224 | 20 | 1/15 | 80.63% | `results/exp_simplenet/dinov3_vitl16_simplenet/results.json` | smoke |
+| MVTec AD | dinov3_vitl16 | dinomaly | 224 | 50 | 1/15 | 80.60% | `results/dinomaly_screw_test/dinov3_vitl16_dinomaly/results.json` | partial/smoke |
+| MVTec AD | dinov3_vitl16 | simplenet | 224 | 100 | 15/15 | 79.04% | `results/dinov3_full/dinov3_vitl16_simplenet/results.json` | full |
+| MVTec AD | dinov3_vitl16 |  | 224 |  | 1/15 | 76.98% | `results/unified_test/unified_dinov3_vitl16/results.json` | partial/smoke |
+| MVTec AD | dinov3_vitl16 | rectflow | 224 | 100 | 15/15 | 72.78% | `results/rectflow_fixed/dinov3_vitl16_rectflow/results.json` | full |
+| MVTec AD | dinov3_vitl16 |  | 224 |  | 15/15 | 63.42% | `results/unified_full/unified_dinov3_vitl16/results.json` | full |
+| MVTec AD | dinov3_vitl16 | mambaad | 224 | 20 | 1/15 | 62.30% | `results/experiment_matrix/dinov3_vitl16_mambaad/results.json` | partial/smoke |
+| MVTec AD | dinov3_vitl16 | fastflow | 224 | 30 | 2/15 | 50.00% | `results/quick_test/dinov3_vitl16_fastflow/results.json` | partial/smoke |
+| MVTec AD | dinov3_vitl16 | rectflow | 224 | 100 | 15/15 | 50.00% | `results/dinov3_full/dinov3_vitl16_rectflow/results.json` | full |
+| MVTec AD | clip_vitl14 | afrclip | 224 | 1 | 1/15 | 10.40% | `results/experiment_matrix/clip_vitl14_afrclip/results.json` | smoke |
+| MVTec LOCO | dinov3_vitl16 | salad |  |  | 5/5 | 96.11% | `results/salad_loco/final_average.txt` | full |
+| MVTec LOCO | dinov3_vitl16 | patchcore | 224 |  | 5/5 | 73.53% | `results/plan_a_mvtec_loco_dinov3/results.json` | full |
+| MVTec LOCO | dinov2_vitb14 | patchcore | 224 |  | 5/5 | 69.46% | `results/plan_a_mvtec_loco/results.json` | full |
 
-| Backbone | Head | 平均 AUROC | 標準差 | 類別數 |
-|----------|------|------------|--------|--------|
-| DINOv3-L | Dinomaly | **97.34%** | ±4.2% | 15/15 |
-| DINOv3-L | PatchCore | 96.51% | ±4.8% | 15/15 |
-| DINOv3-L | FastFlow | ~95%+* | - | smoke |
-| DINOv3-L | RectFlow | ~90%+* | - | smoke |
-| DINOv3-L | SimpleNet | ~80%+* | - | smoke |
-| DINOv2-L | PatchCore | 100%* | - | smoke |
-| Swin-Base | PatchCore | 87.73% | ±12.1% | 15/15 |
-| DINOv3-L | MambaAD | ~55%** | - | partial |
-| CLIP ViT-L/14 | AFR-CLIP | 10.40% | - | 1/15 |
+**表格說明**
+- `Coverage` = 實際評估類別數 / 資料集總類別數
+- `Notes` = `full` 完整 15/15 或 5/5；`smoke`/`partial` 表示子集測試
+- 若同一組合有多個結果，保留全部記錄以追蹤不同設定/epoch
 
-*Smoke test (bottle only)  
-**Low performance, needs hyperparameter tuning
+### MVTec AD 詳細結果 (DINOv3-L + Dinomaly, 15/15)
+
+#### 按類別詳細結果 (DINOv3-L + Dinomaly)
 
 #### 按類別詳細結果 (DINOv3-L + Dinomaly)
 
@@ -167,24 +192,16 @@
 
 ```
                     PatchCore   Dinomaly    MambaAD     AFR-CLIP    FastFlow    SALAD    RectFlow  SimpleNet
-DINOv3-L              ✅         ✅          ⚠️          ✅          ✅          ✅        ✅        ✅
+DINOv3-L              ✅         ✅          ⚠️          ⚠️          ✅          ✅        ✅        ✅
 DINOv2-L              ✅         ❌          ❌          ❌          ❌          ❌        ❌        ❌
-CLIP ViT-L/14         ❌         ❌          ❌          ✅          ❌          ❌        ❌        ❌
+CLIP ViT-L/14         ❌         ❌          ❌          ⚠️          ❌          ❌        ❌        ❌
 ConvNeXt-Tiny         ✅         ❌          ❌          ❌          ❌          ❌        ❌        ❌
-Swin-Base             ✅         ❌          ❌          ❌          ❌          ❌        ❌        ❌
+ConvNeXt-Base         ⚠️         ❌          ❌          ❌          ❌          ❌        ❌        ❌
+Swin-Base             ✅         ❌          ❌          ❌          ✅          ❌        ❌        ❌
 PixIO                 ❌         ❌          ❌          ❌          ❌          ❌        ❌        ❌
+SigLIP SO400M         ❌         ❌          ❌          ❌          ❌          ❌        ❌        ❌
 
-✅ = 已完成    ⚠️ = 部分完成/低性能    ❌ = 未完成
-```
-                    PatchCore   Dinomaly    MambaAD     AFR-CLIP    FastFlow    SALAD
-DINOv3-L              ✅         ✅          ✅          ✅          ❌         ✅
-DINOv2-L              ❌         ❌          ❌          ❌          ❌         ❌
-CLIP ViT-L/14         ❌         ❌          ❌          ✅          ❌         ❌
-ConvNeXt-Tiny         ✅         ✅          ❌          ❌          ❌         ❌
-Swin-Base             ✅         ❌          ❌          ❌          ❌         ❌
-PixIO                 ❌         ❌          ❌          ❌          ❌         ❌
-
-✅ = 已完成    ⚠️ = 部分完成/需設置    ❌ = 未完成
+✅ = 已完成    ⚠️ = 部分完成/低性能/僅 smoke    ❌ = 未完成
 ```
 
 ---
@@ -193,26 +210,22 @@ PixIO                 ❌         ❌          ❌          ❌          ❌    
 
 ### 高優先級 (這週完成)
 
-1. ✅ **SALAD for LOCO** - 已完成 (96.11% AUROC)
-2. ✅ **Few-shot 實驗矩陣** - 已完成 (k=1: 95.48%)
-3. ✅ **ConvNeXt 評估** - 已完成 (83.07% AUROC)
-4. ⚠️ **FastFlow** - 已修復並測試 (~99.9% on bottle)
-5. ⚠️ **RectFlow** - 已測試 (~100% on bottle)
-6. ⚠️ **SimpleNet** - 已測試 (~80% on bottle)
-7. ⚠️ **MambaAD** - 低性能，需要超參數調優 (~55%)
+1. ⚠️ **MSFlow** - 訓練 bug (shape mismatch)
+2. ⚠️ **MambaAD** - 低性能，需要調參
+3. ⚠️ **Linear Head** - 尚未評估
 
 ### 中優先級 (2週內)
 
-8. **MSFlow** - 修復訓練 bug
-9. **Linear Head** - 完整測試
-10. **DINOv2-L/PixIO/SigLIP** - 完整 15 類測試
-11. **高解析度實驗 (448px)**
-12. **Ensemble 集成學習**
+4. **DINOv2-L 完整 15 類** (目前只有 bottle smoke)
+5. **PixIO/SigLIP registry** - 加入實驗矩陣
+6. **ConvNeXt-Base 完整 15 類**
+7. **高解析度實驗 (448px/518px)**
+8. **Ensemble 集成學習**
 
 ### 低優先級 (1個月內)
 
-13. **ONNX/TensorRT 部署優化**
-14. **AFR-CLIP 零樣本優化**
+9. **ONNX/TensorRT 部署優化**
+10. **AFR-CLIP 零樣本優化**
 
 ---
 
@@ -341,11 +354,10 @@ tqdm >= 4.60
 - ✅ 完成 SALAD MVTec LOCO 評估 (96.11% AUROC)
 - ✅ 完成 Few-shot 實驗矩陣 (k=1: 95.48%)
 - ✅ 完成 ConvNeXt + PatchCore (83.07% AUROC)
-- ✅ 修復 FastFlow 訓練流程 (~99.9% on bottle)
-- ✅ 測試 RectFlow (~100% on bottle)
-- ✅ 測試 SimpleNet (~80% on bottle)
-- ✅ 測試 DINOv2-L + PatchCore (100% on bottle)
-- ⚠️ MSFlow 有訓練 bug 待修復
+- ✅ 補齊全部結果總表（AD/LOCO/Few-shot）
+- ✅ 修復 FastFlow 訓練流程
+- ✅ DINOv2-L + PatchCore smoke 完成
+- ⚠️ MSFlow 訓練 bug (shape mismatch)
 - ⚠️ MambaAD 低性能 (~55%) 需要調優
 
 ### 2026-01-17
