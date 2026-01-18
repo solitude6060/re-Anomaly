@@ -31,13 +31,14 @@
 |--------|----------|------------|--------|
 | **MVTec AD** | DINOv3-L + Dinomaly | **97.34%** | 15 類別 |
 | **MVTec AD** | DINOv3-L + PatchCore | **96.51%** | 15 類別 |
-| **MVTec LOCO** | DINOv3-L + PatchCore | **53.98%** | 5 類別 |
+| **MVTec LOCO** | DINOv3-L + SALAD | **96.11%** | 5 類別 |
+| **Few-shot (k=1)** | DINOv3-L + PatchCore | **95.48%** | bottle |
 
 ### 關鍵發現
 
-1. **DINOv3-L + Dinomaly** 是 MVTec AD 最佳組合
-2. **PatchCore 不擅長邏輯異常** (MVTec LOCO 僅 54%)
-3. **SALAD** 是邏輯異常的最佳解決方案 (SOTA: 96.1%)
+1. **DINOv3-L + Dinomaly** 是 MVTec AD 最佳組合 (97.34%)
+2. **SALAD** 是邏輯異常的最佳解決方案 (96.11% on LOCO)
+3. **Few-shot**: k=1 即可達到 95.48% AUROC，k=5 達到 99.29%
 4. **AFR-CLIP** 零樣本能力待驗證
 
 ---
@@ -128,14 +129,41 @@
 
 **⚠️ 關鍵發現**: PatchCore 在邏輯異常上表現極差，需要 SALAD 才能達到滿意效果。
 
+### Few-shot 學習結果 (DINOv3-L + PatchCore, bottle)
+
+| k 值 | AUROC | 狀態 |
+|------|-------|------|
+| k = 1 | **95.48%** | ✅ 優秀 |
+| k = 5 | **99.29%** | ✅ 優秀 |
+| k = 10 | **99.60%** | ✅ 優秀 |
+| k = 20 | **99.76%** | ✅ 優秀 |
+| k = 50 | **100.00%** | ✅ 完美 |
+| k = 100 | **100.00%** | ✅ 完美 |
+| k = 209 | **100.00%** | ✅ 完美 |
+
+**關鍵洞察**: 僅需 1 個訓練樣本即可達到 95.48% AUROC，驗證了 PatchCore 的強大 few-shot 能力。
+
+### SALAD MVTec LOCO 結果 (邏輯異常)
+
+| 類別 | AUROC | 狀態 |
+|------|-------|------|
+| breakfast_box | 88.92% | ✅ 良好 |
+| juice_bottle | 99.73% | ✅ 完美 |
+| pushpins | 99.52% | ✅ 完美 |
+| screw_bag | 95.11% | ✅ 優秀 |
+| splicing_connectors | 97.26% | ✅ 優秀 |
+| **平均** | **96.11%** | ✅ **SOTA** |
+
+**驗證**: SALAD 在邏輯異常檢測上顯著優於 PatchCore (53.98% → 96.11%)。
+
 ### 實驗矩陣狀態
 
 ```
                     PatchCore   Dinomaly    MambaAD     AFR-CLIP    FastFlow    SALAD
-DINOv3-L              ✅         ✅          ✅          ✅          ❌         ⚠️
+DINOv3-L              ✅         ✅          ✅          ✅          ❌         ✅
 DINOv2-L              ❌         ❌          ❌          ❌          ❌         ❌
 CLIP ViT-L/14         ❌         ❌          ❌          ✅          ❌         ❌
-ConvNeXt-Tiny         ✅         ❌          ❌          ❌          ❌         ❌
+ConvNeXt-Tiny         ✅         ✅          ❌          ❌          ❌         ❌
 Swin-Base             ✅         ❌          ❌          ❌          ❌         ❌
 PixIO                 ❌         ❌          ❌          ❌          ❌         ❌
 
@@ -148,27 +176,25 @@ PixIO                 ❌         ❌          ❌          ❌          ❌    
 
 ### 高優先級 (這週完成)
 
-1. **SALAD 外部 repo 設置**
+1. **SALAD 外部 repo 設置** ✅ 完成
    - Repo: https://github.com/MaticFuc/SALAD
-   - 需要下載預訓練權重
-   - 需要設置 MVTec LOCO composition maps
+   - MVTec LOCO 完整評估完成: **96.11% AUROC**
 
-2. **ConvNeXt 完整 MVTec AD 實驗**
-   - 15 類別完整測試
-   - 與 DINOv3 比較
+2. **ConvNeXt 完整 MVTec AD 實驗** ✅ 完成
+   - 15 類別完整測試完成: **83.07% AUROC**
 
-3. **MambaAD 完整實驗**
-   - 調參優化
-   - 15 類別測試
+3. **Few-shot 實驗矩陣** ✅ 完成
+   - k = 1, 5, 10, 20, 50, 100, 209
+   - k=1 達到 95.48% AUROC
+
+4. **MambaAD 完整實驗**
+   - 需要調參優化
+   - 需要 15 類別測試
 
 ### 中優先級 (2週內)
 
-4. **FastFlow/MSFlow/RectFlow 完整實驗**
-5. **SimpleNet/Linear 完整實驗**
-6. **Few-shot 實驗矩陣**
-   - k = 1, 5, 10, 20, 50, 100, 200
-   - 測試樣本數與準確率關係
-
+5. **FastFlow/MSFlow/RectFlow 完整實驗**
+6. **SimpleNet/Linear 完整實驗**
 7. **DINOv2-L/PixIO/SigLIP 測試**
 
 ### 低優先級 (1個月內)
@@ -206,21 +232,17 @@ learning_rate: 1e-4 → 5e-5
 
 ### 中期改進 (1個月)
 
-#### 1. 實作 SALAD for LOCO
-- 克隆外部 repo
-- 下載預訓練權重
-- MVTec LOCO 完整評估
-- 預期 LOCO AUROC: 90%+
+#### 1. ✅ SALAD for LOCO - 已完成
+   - MVTec LOCO 完整評估完成
+   - **實際結果: 96.11% AUROC** (預期 90%+ ✅)
 
-#### 2. Few-shot 實驗矩陣
-```
-k = 1, 5, 10, 20, 50, 100, 200
-目標: 找到樣本數與準確率關係曲線
-```
+#### 2. ✅ Few-shot 實驗矩陣 - 已完成
+   - k = 1, 5, 10, 20, 50, 100, 209
+   - **實際結果: k=1 達到 95.48% AUROC** ✅
 
-#### 3. ConvNeXt 評估
-- 完整 MVTec AD 測試
-- 與 DINOv3 比較效率
+#### 3. ✅ ConvNeXt 評估 - 已完成
+   - 完整 MVTec AD 測試完成
+   - **實際結果: 83.07% AUROC**
 
 ### 長期改進 (3個月)
 
@@ -305,6 +327,8 @@ tqdm >= 4.60
 - ✅ 修復 AFR-CLIP 維度 mismatch
 - ✅ 修復 MambaAD decoder 問題
 - ✅ 完成 MVTec LOCO 基準測試
+- ✅ **完成 SALAD MVTec LOCO 評估 (96.11% AUROC)**
+- ✅ **完成 Few-shot 實驗矩陣 (k=1: 95.48%)**
 - ✅ 生成完整實驗報告
 
 ### 2026-01-17

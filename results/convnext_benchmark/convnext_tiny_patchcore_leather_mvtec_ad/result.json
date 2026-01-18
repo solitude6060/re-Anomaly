@@ -1,0 +1,13 @@
+{
+  "experiment": "convnext_tiny + patchcore",
+  "backbone": "convnext_tiny",
+  "head": "patchcore",
+  "category": "leather",
+  "dataset": "mvtec_ad",
+  "epochs": 5,
+  "image_size": 224,
+  "auroc": 1.0,
+  "elapsed_time": 4.877748012542725,
+  "n_train": 245,
+  "n_test": 124
+}

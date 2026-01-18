@@ -1,0 +1,13 @@
+{
+  "experiment": "convnext_tiny + patchcore",
+  "backbone": "convnext_tiny",
+  "head": "patchcore",
+  "category": "metal_nut",
+  "dataset": "mvtec_ad",
+  "epochs": 10,
+  "image_size": 224,
+  "auroc": 0.9095796676441837,
+  "elapsed_time": 135.9918978214264,
+  "n_train": 220,
+  "n_test": 115
+}

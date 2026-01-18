@@ -1,0 +1,13 @@
+{
+  "experiment": "convnext_tiny + patchcore",
+  "backbone": "convnext_tiny",
+  "head": "patchcore",
+  "category": "pill",
+  "dataset": "mvtec_ad",
+  "epochs": 10,
+  "image_size": 224,
+  "auroc": 0.6025641025641026,
+  "elapsed_time": 138.0638484954834,
+  "n_train": 267,
+  "n_test": 167
+}

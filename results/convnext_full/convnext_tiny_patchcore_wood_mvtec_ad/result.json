@@ -1,0 +1,13 @@
+{
+  "experiment": "convnext_tiny + patchcore",
+  "backbone": "convnext_tiny",
+  "head": "patchcore",
+  "category": "wood",
+  "dataset": "mvtec_ad",
+  "epochs": 10,
+  "image_size": 224,
+  "auroc": 0.9175438596491228,
+  "elapsed_time": 135.8040554523468,
+  "n_train": 247,
+  "n_test": 79
+}

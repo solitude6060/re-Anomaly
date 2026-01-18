@@ -1,0 +1,13 @@
+{
+  "experiment": "convnext_tiny + patchcore",
+  "backbone": "convnext_tiny",
+  "head": "patchcore",
+  "category": "transistor",
+  "dataset": "mvtec_ad",
+  "epochs": 5,
+  "image_size": 224,
+  "auroc": 0.8404166666666666,
+  "elapsed_time": 5.801604747772217,
+  "n_train": 213,
+  "n_test": 100
+}

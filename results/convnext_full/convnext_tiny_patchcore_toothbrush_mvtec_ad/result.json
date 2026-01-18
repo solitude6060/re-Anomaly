@@ -1,0 +1,13 @@
+{
+  "experiment": "convnext_tiny + patchcore",
+  "backbone": "convnext_tiny",
+  "head": "patchcore",
+  "category": "toothbrush",
+  "dataset": "mvtec_ad",
+  "epochs": 10,
+  "image_size": 224,
+  "auroc": 0.8333333333333334,
+  "elapsed_time": 134.64800763130188,
+  "n_train": 60,
+  "n_test": 42
+}

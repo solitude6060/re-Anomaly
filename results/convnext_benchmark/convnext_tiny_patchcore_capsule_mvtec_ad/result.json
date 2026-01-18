@@ -1,0 +1,13 @@
+{
+  "experiment": "convnext_tiny + patchcore",
+  "backbone": "convnext_tiny",
+  "head": "patchcore",
+  "category": "capsule",
+  "dataset": "mvtec_ad",
+  "epochs": 5,
+  "image_size": 224,
+  "auroc": 0.6705225368966893,
+  "elapsed_time": 3.2162909507751465,
+  "n_train": 219,
+  "n_test": 132
+}

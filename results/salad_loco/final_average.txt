@@ -1,0 +1,7 @@
+Category,AUC
+breakfast_box,88.9153
+juice_bottle,99.7254
+pushpins,99.5214
+screw_bag,95.1103
+splicing_connectors,97.2631
+Average,96.1071

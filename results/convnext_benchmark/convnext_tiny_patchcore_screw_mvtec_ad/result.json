@@ -1,0 +1,13 @@
+{
+  "experiment": "convnext_tiny + patchcore",
+  "backbone": "convnext_tiny",
+  "head": "patchcore",
+  "category": "screw",
+  "dataset": "mvtec_ad",
+  "epochs": 5,
+  "image_size": 224,
+  "auroc": 0.5285919245747079,
+  "elapsed_time": 2.7890114784240723,
+  "n_train": 320,
+  "n_test": 160
+}

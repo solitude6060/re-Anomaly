@@ -140,12 +140,12 @@ class PatchCoreHead(BaseHead):
 
     def _compute_distances(self, features: torch.Tensor) -> torch.Tensor:
         if self.use_faiss and self.faiss_index is not None:
-            distances, _ = self.faiss_index.search(
-                features.cpu().numpy(), self.k_nearest
-            )
+            k = min(self.k_nearest, self.faiss_index.ntotal)
+            distances, _ = self.faiss_index.search(features.cpu().numpy(), k)
             return torch.from_numpy(distances).mean(dim=1).to(features.device)
 
         assert self.memory_bank is not None
+        k = min(self.k_nearest, self.memory_bank.shape[0])
         distances = torch.cdist(features, self.memory_bank.to(features.device))
-        topk_distances, _ = distances.topk(self.k_nearest, dim=1, largest=False)
+        topk_distances, _ = distances.topk(k, dim=1, largest=False)
         return topk_distances.mean(dim=1)

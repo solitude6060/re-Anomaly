@@ -21,6 +21,7 @@ import json
 import os
 import sys
 import time
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
@@ -382,12 +383,22 @@ def run_single_experiment(
         backbone = create_backbone(backbone_name, image_size, device)
         backbone.eval()
 
-        # Create dataloaders
+        # Create dataloaders with GPU optimization
         train_loader = DataLoader(
-            train_dataset, batch_size=batch_size, shuffle=True, num_workers=0
+            train_dataset,
+            batch_size=batch_size,
+            shuffle=True,
+            num_workers=4,
+            pin_memory=True,
+            prefetch_factor=2,
         )
         test_loader = DataLoader(
-            test_dataset, batch_size=batch_size, shuffle=False, num_workers=0
+            test_dataset,
+            batch_size=batch_size,
+            shuffle=False,
+            num_workers=4,
+            pin_memory=True,
+            prefetch_factor=2,
         )
 
         # Fit head on training data
