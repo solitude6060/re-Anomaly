@@ -28,8 +28,9 @@ class MSFlowHead(BaseHead):
         return RealNVPFlow(in_channels, self.num_blocks, self.hidden_dims)
 
     def fit(self, features: list[torch.Tensor]) -> None:
-        self.flows.clear()
-        self.projections.clear()
+        # Recreate ModuleLists to avoid nn.ModuleList.clear() issue
+        self.flows = nn.ModuleList()
+        self.projections = nn.ModuleList()
 
         for i, feat in enumerate(features):
             in_channels = feat.shape[1]

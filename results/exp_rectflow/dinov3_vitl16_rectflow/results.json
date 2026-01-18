@@ -1,0 +1,21 @@
+{
+  "experiment": "dinov3_vitl16 + rectflow",
+  "backbone": "dinov3_vitl16",
+  "head": "rectflow",
+  "epochs": 20,
+  "image_size": 224,
+  "avg_image_auroc": 1.0,
+  "avg_precision_at_100_recall": 1.0,
+  "per_category_results": [
+    {
+      "category": "bottle",
+      "image_auroc": 1.0,
+      "n_train": 209,
+      "n_test": 83,
+      "n_anomalies": 63,
+      "n_normal": 20,
+      "precision_at_100_recall": 1.0,
+      "eval_time_seconds": 59.62466597557068
+    }
+  ]
+}

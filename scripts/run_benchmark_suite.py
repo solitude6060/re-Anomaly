@@ -151,11 +151,17 @@ HEAD_REGISTRY = {
     "fastflow": {
         "class": FastFlowHead,
         "config": {
-            "in_channels": 1024,
-            "hidden_channels": 512,
-            "num_scales": 3,
-            "scale_factor": 2,
-            "use_batch_norm": True,
+            "flow": {
+                "type": "realnvp",
+                "num_blocks": 8,
+                "hidden_dims": [256, 256],
+                "clamp": 2.0,
+            },
+            "feature_processing": {
+                "reduce_dim": True,
+                "projection_dim": 256,
+                "normalize": True,
+            },
         },
         "trainable": True,
     },
@@ -264,10 +270,19 @@ def train_head(
             if head_name == "dinomaly":
                 loss = head.compute_training_loss(features)
             elif head_name == "fastflow":
+                # Use the same preprocessing path as FastFlowHead.forward()
                 aggregated = head._aggregate_features(features)
-                z, log_det = head.flow(aggregated)
-                log_pz = -0.5 * (z**2).sum(dim=1)
-                loss = -(log_pz + log_det).mean()
+                if (
+                    getattr(head, "reduce_dim", False)
+                    and getattr(head, "projection", None) is not None
+                ):
+                    aggregated = head.projection(aggregated)
+                if getattr(head, "normalize", False):
+                    aggregated = nn.functional.normalize(aggregated, p=2, dim=1)
+
+                assert head.flow is not None
+                log_prob = head.flow.log_prob(aggregated)
+                loss = -log_prob.mean()
             elif head_name == "mambaad":
                 output = head(features)
                 loss = head.compute_loss(features, output["decoder_features"])
@@ -302,10 +317,8 @@ def evaluate(head, head_name: str, features: list[torch.Tensor]):
             output = head(features)
             score = output["anomaly_score"]
         elif head_name == "fastflow":
-            aggregated = head._aggregate_features(features)
-            z, log_det = head.flow(aggregated)
-            log_pz = -0.5 * (z**2).sum(dim=1)
-            score = -(log_pz + log_det)
+            output = head(features)
+            score = output["anomaly_score"]
         elif head_name == "mambaad":
             output = head(features)
             score = output["anomaly_score"]

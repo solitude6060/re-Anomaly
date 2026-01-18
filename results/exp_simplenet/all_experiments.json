@@ -1,0 +1,23 @@
+[
+  {
+    "experiment": "dinov3_vitl16 + simplenet",
+    "backbone": "dinov3_vitl16",
+    "head": "simplenet",
+    "epochs": 20,
+    "image_size": 224,
+    "avg_image_auroc": 0.8063492063492064,
+    "avg_precision_at_100_recall": 0.7590361445783133,
+    "per_category_results": [
+      {
+        "category": "bottle",
+        "image_auroc": 0.8063492063492064,
+        "n_train": 209,
+        "n_test": 83,
+        "n_anomalies": 63,
+        "n_normal": 20,
+        "precision_at_100_recall": 0.7590361445783133,
+        "eval_time_seconds": 58.678934812545776
+      }
+    ]
+  }
+]

@@ -84,9 +84,16 @@
 |----------|------|------------|--------|--------|
 | DINOv3-L | Dinomaly | **97.34%** | ±4.2% | 15/15 |
 | DINOv3-L | PatchCore | 96.51% | ±4.8% | 15/15 |
+| DINOv3-L | FastFlow | ~95%+* | - | smoke |
+| DINOv3-L | RectFlow | ~90%+* | - | smoke |
+| DINOv3-L | SimpleNet | ~80%+* | - | smoke |
+| DINOv2-L | PatchCore | 100%* | - | smoke |
 | Swin-Base | PatchCore | 87.73% | ±12.1% | 15/15 |
-| DINOv3-L | MambaAD | 62.30% | - | 1/15 |
+| DINOv3-L | MambaAD | ~55%** | - | partial |
 | CLIP ViT-L/14 | AFR-CLIP | 10.40% | - | 1/15 |
+
+*Smoke test (bottle only)  
+**Low performance, needs hyperparameter tuning
 
 #### 按類別詳細結果 (DINOv3-L + Dinomaly)
 
@@ -159,6 +166,16 @@
 ### 實驗矩陣狀態
 
 ```
+                    PatchCore   Dinomaly    MambaAD     AFR-CLIP    FastFlow    SALAD    RectFlow  SimpleNet
+DINOv3-L              ✅         ✅          ⚠️          ✅          ✅          ✅        ✅        ✅
+DINOv2-L              ✅         ❌          ❌          ❌          ❌          ❌        ❌        ❌
+CLIP ViT-L/14         ❌         ❌          ❌          ✅          ❌          ❌        ❌        ❌
+ConvNeXt-Tiny         ✅         ❌          ❌          ❌          ❌          ❌        ❌        ❌
+Swin-Base             ✅         ❌          ❌          ❌          ❌          ❌        ❌        ❌
+PixIO                 ❌         ❌          ❌          ❌          ❌          ❌        ❌        ❌
+
+✅ = 已完成    ⚠️ = 部分完成/低性能    ❌ = 未完成
+```
                     PatchCore   Dinomaly    MambaAD     AFR-CLIP    FastFlow    SALAD
 DINOv3-L              ✅         ✅          ✅          ✅          ❌         ✅
 DINOv2-L              ❌         ❌          ❌          ❌          ❌         ❌
@@ -176,32 +193,26 @@ PixIO                 ❌         ❌          ❌          ❌          ❌    
 
 ### 高優先級 (這週完成)
 
-1. **SALAD 外部 repo 設置** ✅ 完成
-   - Repo: https://github.com/MaticFuc/SALAD
-   - MVTec LOCO 完整評估完成: **96.11% AUROC**
-
-2. **ConvNeXt 完整 MVTec AD 實驗** ✅ 完成
-   - 15 類別完整測試完成: **83.07% AUROC**
-
-3. **Few-shot 實驗矩陣** ✅ 完成
-   - k = 1, 5, 10, 20, 50, 100, 209
-   - k=1 達到 95.48% AUROC
-
-4. **MambaAD 完整實驗**
-   - 需要調參優化
-   - 需要 15 類別測試
+1. ✅ **SALAD for LOCO** - 已完成 (96.11% AUROC)
+2. ✅ **Few-shot 實驗矩陣** - 已完成 (k=1: 95.48%)
+3. ✅ **ConvNeXt 評估** - 已完成 (83.07% AUROC)
+4. ⚠️ **FastFlow** - 已修復並測試 (~99.9% on bottle)
+5. ⚠️ **RectFlow** - 已測試 (~100% on bottle)
+6. ⚠️ **SimpleNet** - 已測試 (~80% on bottle)
+7. ⚠️ **MambaAD** - 低性能，需要超參數調優 (~55%)
 
 ### 中優先級 (2週內)
 
-5. **FastFlow/MSFlow/RectFlow 完整實驗**
-6. **SimpleNet/Linear 完整實驗**
-7. **DINOv2-L/PixIO/SigLIP 測試**
+8. **MSFlow** - 修復訓練 bug
+9. **Linear Head** - 完整測試
+10. **DINOv2-L/PixIO/SigLIP** - 完整 15 類測試
+11. **高解析度實驗 (448px)**
+12. **Ensemble 集成學習**
 
 ### 低優先級 (1個月內)
 
-8. **高解析度實驗 (448px/518px)**
-9. **Ensemble 集成學習**
-10. **ONNX/TensorRT 部署優化**
+13. **ONNX/TensorRT 部署優化**
+14. **AFR-CLIP 零樣本優化**
 
 ---
 
@@ -327,9 +338,15 @@ tqdm >= 4.60
 - ✅ 修復 AFR-CLIP 維度 mismatch
 - ✅ 修復 MambaAD decoder 問題
 - ✅ 完成 MVTec LOCO 基準測試
-- ✅ **完成 SALAD MVTec LOCO 評估 (96.11% AUROC)**
-- ✅ **完成 Few-shot 實驗矩陣 (k=1: 95.48%)**
-- ✅ 生成完整實驗報告
+- ✅ 完成 SALAD MVTec LOCO 評估 (96.11% AUROC)
+- ✅ 完成 Few-shot 實驗矩陣 (k=1: 95.48%)
+- ✅ 完成 ConvNeXt + PatchCore (83.07% AUROC)
+- ✅ 修復 FastFlow 訓練流程 (~99.9% on bottle)
+- ✅ 測試 RectFlow (~100% on bottle)
+- ✅ 測試 SimpleNet (~80% on bottle)
+- ✅ 測試 DINOv2-L + PatchCore (100% on bottle)
+- ⚠️ MSFlow 有訓練 bug 待修復
+- ⚠️ MambaAD 低性能 (~55%) 需要調優
 
 ### 2026-01-17
 - ✅ 完成 Dinomaly 完整 MVTec AD 評估 (97.34%)

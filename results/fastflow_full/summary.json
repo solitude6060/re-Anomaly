@@ -1,0 +1,12 @@
+[
+  {
+    "experiment": "dinov3_vitl16 + fastflow",
+    "backbone": "dinov3_vitl16",
+    "head": "fastflow",
+    "category": "bottle",
+    "dataset": "mvtec_ad",
+    "error": "Given groups=1, weight of size [256, 128, 3, 3], expected input[4, 2048, 14, 14] to have 128 channels, but got 2048 channels instead",
+    "elapsed_time": 1.4559681415557861,
+    "auroc": 0.0
+  }
+]

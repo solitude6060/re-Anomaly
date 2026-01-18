@@ -1,0 +1,15 @@
+[
+  {
+    "experiment": "dinov3_vitl16 + mambaad",
+    "backbone": "dinov3_vitl16",
+    "head": "mambaad",
+    "category": "bottle",
+    "dataset": "mvtec_ad",
+    "epochs": 20,
+    "image_size": 224,
+    "auroc": 0.7007936507936509,
+    "elapsed_time": 44.05592179298401,
+    "n_train": 209,
+    "n_test": 83
+  }
+]
