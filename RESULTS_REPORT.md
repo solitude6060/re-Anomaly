@@ -298,7 +298,8 @@ results/
 ├── dinov3_full/           # PatchCore 結果 (15類別)
 ├── swin_full/             # Swin-Base + PatchCore
 ├── patchcore_448/         # PatchCore 448px
-├── experiment_matrix/     # 今晚新增實驗
+├── experiment_matrix/     # 實驗矩陣 (多組合)
+├── full_experiments/      # 全量實驗腳本輸出
 ├── benchmark_mvtec_ad/    # MVTec AD 基準測試
 ├── benchmark_mvtec_loco/  # MVTec LOCO 基準測試
 └── benchmark_suite/       # 綜合測試腳本
@@ -316,6 +317,9 @@ PYTHONPATH=. uv run python scripts/run_experiment_matrix.py \
   --backbones dinov3_vitl16 \
   --heads dinomaly
 
+# 運行全量實驗（AD/LOCO/Few-shot）
+bash scripts/pending_experiments.sh all
+
 # 運行綜合基準測試
 PYTHONPATH=. uv run python scripts/run_benchmark_suite.py \
   --dataset mvtec_ad \
@@ -323,9 +327,9 @@ PYTHONPATH=. uv run python scripts/run_benchmark_suite.py \
   --smoke-test
 
 # 運行 MVTec LOCO
-PYTHONPATH=. uv run python scripts/run_benchmark_suite.py \
-  --dataset mvtec_loco \
-  --output-dir results/benchmark_loco
+PYTHONPATH=. uv run python scripts/run_plan_a_loco.py \
+  --data_root data/mvtec_loco \
+  --output_dir results/benchmark_loco
 ```
 
 ### 依賴項

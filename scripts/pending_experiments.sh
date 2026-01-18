@@ -1,192 +1,182 @@
 #!/bin/bash
-# Pending Experiments for re-Anomaly
-# Run these when GPU is available (after Dinomaly exp-1 completes)
+set -euo pipefail
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$PROJECT_ROOT"
 
-# ============================================================================
-# EXP-2: Test PatchCore with larger image sizes (448 and 518)
-# ============================================================================
-# Current baseline: 224px = 96.51% AUROC
-# Expected improvement: DINOv3 was trained at 518px, higher res should help
+DATA_AD="data/mvtec_ad"
+DATA_LOCO="data/mvtec_loco"
+OUTPUT_ROOT="results/full_experiments"
+IMAGE_SIZE=224
+EPOCHS=100
+BATCH_SIZE=16
 
-run_exp2_448() {
-    echo "Running EXP-2a: PatchCore with image_size=448"
-    PYTHONPATH=. uv run python scripts/run_experiment_matrix.py \
-        --data_root data/mvtec_ad \
-        --output_dir results/patchcore_448 \
-        --image_size 448 \
-        --epochs 1 \
-        --batch_size 8 \
-        --backbones dinov3_vitl16 \
-        --heads patchcore
+AD_BACKBONES=(
+  dinov2_vitb14
+  dinov2_vitl14
+  dinov3_vitl16
+  clip_vitl14
+  siglip_so400m_384
+  swin_base
+  swin_large
+  swinv2_base
+  convnext_tiny
+  convnext_base
+)
+
+AD_HEADS=(
+  patchcore
+  dinomaly
+  fastflow
+  rectflow
+  simplenet
+  mambaad
+  msflow
+  afrclip
+)
+
+LOCO_BACKBONES=(
+  dinov2_vitb14
+  dinov2_vitl14
+  dinov3_vitl16
+  pixio_vitl16
+)
+
+FEWSHOT_KS=(1 5 10 20 50 100 200)
+
+run_mvtec_ad() {
+  echo "[MVTec AD] Running full experiment matrix"
+  PYTHONPATH=. uv run python scripts/run_experiment_matrix.py \
+    --data_root "$DATA_AD" \
+    --output_dir "$OUTPUT_ROOT/mvtec_ad" \
+    --image_size "$IMAGE_SIZE" \
+    --epochs "$EPOCHS" \
+    --batch_size "$BATCH_SIZE" \
+    --backbones "${AD_BACKBONES[@]}" \
+    --heads "${AD_HEADS[@]}"
 }
 
-run_exp2_518() {
-    echo "Running EXP-2b: PatchCore with image_size=518"
-    PYTHONPATH=. uv run python scripts/run_experiment_matrix.py \
-        --data_root data/mvtec_ad \
-        --output_dir results/patchcore_518 \
-        --image_size 518 \
-        --epochs 1 \
-        --batch_size 8 \
-        --backbones dinov3_vitl16 \
-        --heads patchcore
+run_mvtec_loco_plan_a() {
+  echo "[MVTec LOCO] Running Plan A (PatchCore) for all backbones"
+  for backbone in "${LOCO_BACKBONES[@]}"; do
+    echo "  Backbone: $backbone"
+    PYTHONPATH=. uv run python scripts/run_plan_a_loco.py \
+      --data_root "$DATA_LOCO" \
+      --output_dir "$OUTPUT_ROOT/mvtec_loco_plan_a/$backbone" \
+      --image_size "$IMAGE_SIZE" \
+      --backbone "$backbone"
+  done
 }
 
-# ============================================================================
-# EXP-3: Test PixIO backbone
-# ============================================================================
-# PixIO uses 8 class tokens with MAE-style training
-# Should provide complementary features to DINOv3
-
-run_exp3() {
-    echo "Running EXP-3: PixIO backbone evaluation"
-    PYTHONPATH=. uv run python scripts/run_experiment_matrix.py \
-        --data_root data/mvtec_ad \
-        --output_dir results/pixio_eval \
-        --image_size 224 \
-        --epochs 1 \
-        --batch_size 16 \
-        --backbones pixio_vitl16 \
-        --heads patchcore
+run_mvtec_loco_salad() {
+  echo "[MVTec LOCO] Running SALAD (Plan B)"
+  PYTHONPATH=. uv run python scripts/run_salad.py --all
 }
 
-# ============================================================================
-# EXP-4: Few-shot experiments
-# ============================================================================
-# Test performance with limited training samples: k=1,5,10,20,50,100,200
+run_fewshot() {
+  echo "[Few-shot] Running PatchCore few-shot k sweep"
+  mkdir -p "$OUTPUT_ROOT/fewshot"
+  for k in "${FEWSHOT_KS[@]}"; do
+    echo "  k=$k"
+    K="$k" PYTHONPATH=. uv run python - <<'PY'
+import json
+import os
+from pathlib import Path
 
-run_exp4() {
-    echo "Running EXP-4: Few-shot experiments"
-    for k in 1 5 10 20 50 100 200; do
-        echo "  k=$k shots..."
-        PYTHONPATH=. uv run python -c "
-from src.data.mvtec import MVTecADDataset, FewShotSampler
+import numpy as np
+import torch
+from sklearn.metrics import roc_auc_score
+from torch.utils.data import DataLoader
+
+from src.data.mvtec import MVTecADDataset, MVTEC_AD_CATEGORIES, FewShotSampler
 from src.models.backbones.dinov3 import DINOv3Backbone
 from src.models.heads.patchcore import PatchCoreHead
-from torch.utils.data import DataLoader
-import torch
-import json
-from pathlib import Path
-from sklearn.metrics import roc_auc_score
-import numpy as np
 
-device = torch.device('cuda')
-k = $k
-results = []
+k = int(os.environ["K"])
+output_dir = Path("results/full_experiments/fewshot")
+output_dir.mkdir(parents=True, exist_ok=True)
 
-backbone = DINOv3Backbone({
-    'variant': 'dinov3_vitl16',
-    'patch_size': 16,
-    'output_layers': [8, 11, 17, 23],
-})
+backbone = DINOv3Backbone(
+    {
+        "variant": "dinov3_vitl16",
+        "patch_size": 16,
+        "output_layers": [8, 11, 17, 23],
+        "pretrained": True,
+        "freeze_backbone": True,
+        "image_size": 224,
+        "interpolate_pos_encoding": True,
+    }
+)
+
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 backbone = backbone.to(device).eval()
 
-categories = ['bottle', 'cable', 'capsule', 'carpet', 'grid', 'hazelnut', 
-              'leather', 'metal_nut', 'pill', 'screw', 'tile', 'toothbrush',
-              'transistor', 'wood', 'zipper']
+results = []
+for category in MVTEC_AD_CATEGORIES:
+    train_ds = MVTecADDataset("data/mvtec_ad", category=category, split="train", image_size=224)
+    test_ds = MVTecADDataset("data/mvtec_ad", category=category, split="test", image_size=224)
 
-for cat in categories:
-    train_ds = MVTecADDataset('data/mvtec_ad', category=cat, split='train', image_size=224)
-    test_ds = MVTecADDataset('data/mvtec_ad', category=cat, split='test', image_size=224)
-    
-    # Few-shot sampling
     sampler = FewShotSampler(train_ds, k=k, seed=42)
     train_subset = sampler.sample()
-    
-    head = PatchCoreHead({
-        'k_nearest': 9,
-        'coreset_sampling_ratio': 0.1,
-        'coreset_method': 'greedy',
-        'feature_aggregation': 'concat',
-        'memory_bank': {'max_size': 100000, 'normalize': True, 'use_faiss': True},
-        'anomaly_score': {'normalize': True},
-    })
-    
-    # Fit on few-shot samples
+
+    head = PatchCoreHead(
+        {
+            "k_nearest": 9,
+            "coreset_sampling_ratio": 0.1,
+            "coreset_method": "greedy",
+            "feature_aggregation": "concat",
+            "memory_bank": {"max_size": 100000, "normalize": True, "use_faiss": True},
+            "anomaly_score": {"normalize": True},
+        }
+    )
+
     train_loader = DataLoader(train_subset, batch_size=16, shuffle=False)
-    all_features = []
+    features_batches = []
     with torch.no_grad():
         for batch in train_loader:
-            images = batch['image'].to(device)
-            features = backbone(images)
-            all_features.append([f.cpu() for f in features])
-    
-    merged = [torch.cat([f[i] for f in all_features], dim=0) for i in range(len(all_features[0]))]
+            images = batch["image"].to(device)
+            features_batches.append([f.cpu() for f in backbone(images)])
+
+    merged = [torch.cat([f[i] for f in features_batches], dim=0) for i in range(len(features_batches[0]))]
     head.fit(merged)
-    
-    # Evaluate
+
     scores, labels = [], []
     with torch.no_grad():
-        for i in range(len(test_ds)):
-            sample = test_ds[i]
-            image = sample['image'].unsqueeze(0).to(device)
-            features = backbone(image)
-            output = head(features)
-            scores.append(output['anomaly_score'].cpu().item())
-            labels.append(sample['label'])
-    
+        for sample in test_ds:
+            image = sample["image"].unsqueeze(0).to(device)
+            output = head(backbone(image))
+            scores.append(output["anomaly_score"].cpu().item())
+            labels.append(sample["label"])
+
     auroc = roc_auc_score(labels, scores)
-    results.append({'category': cat, 'k': k, 'auroc': float(auroc)})
-    print(f'  {cat}: {auroc:.4f}')
+    results.append({"category": category, "auroc": float(auroc)})
 
-avg_auroc = np.mean([r['auroc'] for r in results])
-print(f'  Average AUROC (k={k}): {avg_auroc:.4f}')
+avg_auroc = float(np.mean([r["auroc"] for r in results]))
 
-Path('results/fewshot').mkdir(parents=True, exist_ok=True)
-with open(f'results/fewshot/k{k}_results.json', 'w') as f:
-    json.dump({'k': k, 'avg_auroc': avg_auroc, 'results': results}, f, indent=2)
-"
-    done
+payload = {"k": k, "avg_auroc": avg_auroc, "results": results}
+with open(output_dir / f"k{k}_results.json", "w") as f:
+    json.dump(payload, f, indent=2)
+
+print(f"Average AUROC (k={k}): {avg_auroc:.4f}")
+PY
+  done
 }
 
-# ============================================================================
-# EXP-5: SALAD on MVTec LOCO
-# ============================================================================
-# SALAD for logical anomaly detection
-
-run_exp5() {
-    echo "Running EXP-5: SALAD on MVTec LOCO"
-    PYTHONPATH=. uv run python scripts/run_salad.py \
-        --data_root data/mvtec_loco \
-        --output_dir results/salad_loco \
-        --epochs 100 \
-        --batch_size 8
-}
-
-# ============================================================================
-# Run all pending experiments
-# ============================================================================
 run_all() {
-    echo "Running all pending experiments..."
-    run_exp2_448
-    run_exp2_518
-    run_exp3
-    run_exp4
-    run_exp5
+  run_mvtec_ad
+  run_mvtec_loco_plan_a
+  run_mvtec_loco_salad
+  run_fewshot
 }
 
-# Parse command line
 case "${1:-}" in
-    exp2a) run_exp2_448 ;;
-    exp2b) run_exp2_518 ;;
-    exp2) run_exp2_448 && run_exp2_518 ;;
-    exp3) run_exp3 ;;
-    exp4) run_exp4 ;;
-    exp5) run_exp5 ;;
-    all) run_all ;;
-    *)
-        echo "Usage: $0 {exp2a|exp2b|exp2|exp3|exp4|exp5|all}"
-        echo ""
-        echo "Experiments:"
-        echo "  exp2a - PatchCore image_size=448"
-        echo "  exp2b - PatchCore image_size=518"
-        echo "  exp2  - Both image size experiments"
-        echo "  exp3  - PixIO backbone evaluation"
-        echo "  exp4  - Few-shot experiments (k=1,5,10,20,50,100,200)"
-        echo "  exp5  - SALAD on MVTec LOCO"
-        echo "  all   - Run all pending experiments"
-        ;;
-esac
+  ad) run_mvtec_ad ;;
+  loco-plan-a) run_mvtec_loco_plan_a ;;
+  loco-salad) run_mvtec_loco_salad ;;
+  fewshot) run_fewshot ;;
+  all) run_all ;;
+  *)
+    echo "Usage: $0 {ad|loco-plan-a|loco-salad|fewshot|all}"
+    exit 1
+    ;;
+ esac
