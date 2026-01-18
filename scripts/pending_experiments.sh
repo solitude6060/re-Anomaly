@@ -6,10 +6,43 @@ cd "$PROJECT_ROOT"
 
 DATA_AD="data/mvtec_ad"
 DATA_LOCO="data/mvtec_loco"
+DATA_LOCO_SEG="data/mvtec_loco_composition_maps"
+SALAD_ROOT="/tmp/SALAD"
+SALAD_TEACHER_WEIGHTS="$SALAD_ROOT/models/teacher_medium.pth"
 OUTPUT_ROOT="results/full_experiments"
 IMAGE_SIZE=224
 EPOCHS=100
 BATCH_SIZE=16
+
+require_path() {
+  local path="$1"
+  local label="$2"
+  if [ ! -e "$path" ]; then
+    echo "Missing $label at: $path" >&2
+    exit 1
+  fi
+}
+
+preflight_ad() {
+  require_path "$DATA_AD" "MVTec AD dataset"
+}
+
+preflight_loco() {
+  require_path "$DATA_LOCO" "MVTec LOCO dataset"
+  require_path "$DATA_LOCO_SEG" "MVTec LOCO composition maps"
+}
+
+preflight_salad() {
+  require_path "$SALAD_ROOT" "SALAD repo"
+  require_path "$SALAD_TEACHER_WEIGHTS" "SALAD teacher weights"
+}
+
+preflight_uv() {
+  if ! command -v uv >/dev/null 2>&1; then
+    echo "Missing uv command (install uv or adjust script)." >&2
+    exit 1
+  fi
+}
 
 AD_BACKBONES=(
   dinov2_vitb14
@@ -45,6 +78,8 @@ LOCO_BACKBONES=(
 FEWSHOT_KS=(1 5 10 20 50 100 200)
 
 run_mvtec_ad() {
+  preflight_uv
+  preflight_ad
   echo "[MVTec AD] Running full experiment matrix"
   PYTHONPATH=. uv run python scripts/run_experiment_matrix.py \
     --data_root "$DATA_AD" \
@@ -57,6 +92,8 @@ run_mvtec_ad() {
 }
 
 run_mvtec_loco_plan_a() {
+  preflight_uv
+  preflight_loco
   echo "[MVTec LOCO] Running Plan A (PatchCore) for all backbones"
   for backbone in "${LOCO_BACKBONES[@]}"; do
     echo "  Backbone: $backbone"
@@ -69,11 +106,16 @@ run_mvtec_loco_plan_a() {
 }
 
 run_mvtec_loco_salad() {
+  preflight_uv
+  preflight_loco
+  preflight_salad
   echo "[MVTec LOCO] Running SALAD (Plan B)"
   PYTHONPATH=. uv run python scripts/run_salad.py --all
 }
 
 run_fewshot() {
+  preflight_uv
+  preflight_ad
   echo "[Few-shot] Running PatchCore few-shot k sweep"
   mkdir -p "$OUTPUT_ROOT/fewshot"
   for k in "${FEWSHOT_KS[@]}"; do
