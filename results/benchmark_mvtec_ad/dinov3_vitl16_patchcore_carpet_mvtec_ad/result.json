@@ -1,0 +1,13 @@
+{
+  "experiment": "dinov3_vitl16 + patchcore",
+  "backbone": "dinov3_vitl16",
+  "head": "patchcore",
+  "category": "carpet",
+  "dataset": "mvtec_ad",
+  "epochs": 5,
+  "image_size": 224,
+  "auroc": 0.9446227929373997,
+  "elapsed_time": 10.362481594085693,
+  "n_train": 280,
+  "n_test": 117
+}

@@ -1,0 +1,116 @@
+{
+  "experiment": "weak_category_optimization",
+  "categories": [
+    "screw"
+  ],
+  "config_variations": [
+    "patchcore_baseline",
+    "patchcore_k3",
+    "patchcore_k15",
+    "patchcore_coreset_25",
+    "fastflow_baseline",
+    "fastflow_steps_12",
+    "fastflow_epochs_200",
+    "fastflow_lr_5e5"
+  ],
+  "results": {
+    "screw": [
+      {
+        "config_name": "patchcore_baseline",
+        "config": {
+          "name": "patchcore_baseline",
+          "head_type": "patchcore",
+          "num_neighbors": 9,
+          "coreset_ratio": 0.1
+        },
+        "auroc": 0.6359909817585571
+      },
+      {
+        "config_name": "patchcore_k3",
+        "config": {
+          "name": "patchcore_k3",
+          "head_type": "patchcore",
+          "num_neighbors": 3,
+          "coreset_ratio": 0.1
+        },
+        "auroc": 0.6687845870055339
+      },
+      {
+        "config_name": "patchcore_k15",
+        "config": {
+          "name": "patchcore_k15",
+          "head_type": "patchcore",
+          "num_neighbors": 15,
+          "coreset_ratio": 0.1
+        },
+        "auroc": 0.5984832957573274
+      },
+      {
+        "config_name": "patchcore_coreset_25",
+        "config": {
+          "name": "patchcore_coreset_25",
+          "head_type": "patchcore",
+          "num_neighbors": 9,
+          "coreset_ratio": 0.25
+        },
+        "auroc": 0.5888501742160279
+      },
+      {
+        "config_name": "fastflow_baseline",
+        "config": {
+          "name": "fastflow_baseline",
+          "head_type": "fastflow",
+          "flow_steps": 8,
+          "epochs": 100,
+          "lr": 0.0001
+        },
+        "auroc": 0.41996310719409713
+      },
+      {
+        "config_name": "fastflow_steps_12",
+        "config": {
+          "name": "fastflow_steps_12",
+          "head_type": "fastflow",
+          "flow_steps": 12,
+          "epochs": 100,
+          "lr": 0.0001
+        },
+        "auroc": 0.46331215412994464
+      },
+      {
+        "config_name": "fastflow_epochs_200",
+        "config": {
+          "name": "fastflow_epochs_200",
+          "head_type": "fastflow",
+          "flow_steps": 8,
+          "epochs": 200,
+          "lr": 0.0001
+        },
+        "auroc": 0.5055339208854273
+      },
+      {
+        "config_name": "fastflow_lr_5e5",
+        "config": {
+          "name": "fastflow_lr_5e5",
+          "head_type": "fastflow",
+          "flow_steps": 8,
+          "epochs": 100,
+          "lr": 5e-05
+        },
+        "auroc": 0.40305390448862477
+      }
+    ]
+  },
+  "best_per_category": {
+    "screw": {
+      "config_name": "patchcore_k3",
+      "config": {
+        "name": "patchcore_k3",
+        "head_type": "patchcore",
+        "num_neighbors": 3,
+        "coreset_ratio": 0.1
+      },
+      "auroc": 0.6687845870055339
+    }
+  }
+}

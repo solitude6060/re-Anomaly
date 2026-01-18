@@ -1,0 +1,13 @@
+{
+  "experiment": "dinov3_vitl16 + patchcore",
+  "backbone": "dinov3_vitl16",
+  "head": "patchcore",
+  "category": "cable",
+  "dataset": "mvtec_ad",
+  "epochs": 5,
+  "image_size": 224,
+  "auroc": 0.8633808095952025,
+  "elapsed_time": 11.70341682434082,
+  "n_train": 224,
+  "n_test": 150
+}

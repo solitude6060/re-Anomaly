@@ -11,7 +11,6 @@ Reference: https://github.com/caoyunkang/Dinomaly
 Paper: "Dinomaly: The Less Is More Philosophy in Multi-Class Unsupervised Anomaly Detection"
 """
 
-import math
 from typing import Any
 
 import torch
@@ -223,6 +222,7 @@ class DinomalyHead(BaseHead):
         self.bottleneck: nn.Module | None = None
         self.decoder: nn.ModuleList | None = None
         self._initialized = False
+        self._registered_hook_ids: set[int] = set()
 
         # Feature normalization for anomaly scoring
         self.normalize_features: bool = config.get("normalize_features", True)
@@ -479,8 +479,8 @@ class DinomalyHead(BaseHead):
         if isinstance(self.bottleneck, nn.Module):
             self.bottleneck = self.bottleneck.to(device)
 
-        batch_size = features[0].shape[0]
-        h = w = features[0].shape[-1]
+        features[0].shape[0]
+        h = features[0].shape[-1]
 
         en_list = []
         for feat in features:
@@ -559,8 +559,9 @@ class DinomalyHead(BaseHead):
                     grad_modified[~mask] = grad_modified[~mask] * grad_factor
                     return grad_modified
 
-                if not hasattr(de, "_has_hook"):
+                tensor_id = id(de)
+                if tensor_id not in self._registered_hook_ids:
                     de.register_hook(grad_hook)
-                    de._has_hook = True
+                    self._registered_hook_ids.add(tensor_id)
 
         return loss / len(en_features)

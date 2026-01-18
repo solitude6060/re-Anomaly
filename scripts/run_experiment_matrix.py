@@ -21,15 +21,20 @@ from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 from src.data.mvtec import MVTecADDataset, MVTEC_AD_CATEGORIES
+from src.models.backbones.clip import CLIPBackbone
+from src.models.backbones.convnext import ConvNeXtBackbone
 from src.models.backbones.dinov2 import DINOv2Backbone
 from src.models.backbones.dinov3 import DINOv3Backbone
+from src.models.backbones.pixio import PixIOBackbone
 from src.models.backbones.swin import SwinBackbone
-from src.models.heads.patchcore import PatchCoreHead
-from src.models.heads.fastflow import FastFlowHead
-from src.models.heads.simplenet import SimpleNetHead
-from src.models.heads.msflow import MSFlowHead
-from src.models.heads.rectflow import RectFlowHead
+from src.models.heads.afrclip import AFRCLIPHead
 from src.models.heads.dinomaly import DinomalyHead
+from src.models.heads.fastflow import FastFlowHead
+from src.models.heads.mambaad import MambaADHead
+from src.models.heads.msflow import MSFlowHead
+from src.models.heads.patchcore import PatchCoreHead
+from src.models.heads.rectflow import RectFlowHead
+from src.models.heads.simplenet import SimpleNetHead
 
 
 @dataclass
@@ -68,6 +73,20 @@ BACKBONE_REGISTRY = {
             "output_layers": [8, 11, 17, 23],
         },
     },
+    "clip_vitl14": {
+        "class": CLIPBackbone,
+        "config": {
+            "variant": "clip_vitl14",
+            "output_layers": [6, 12, 18, 23],
+        },
+    },
+    "siglip_so400m_384": {
+        "class": CLIPBackbone,
+        "config": {
+            "variant": "siglip_so400m_384",
+            "output_layers": [6, 12, 18, 23],
+        },
+    },
     "swin_base": {
         "class": SwinBackbone,
         "config": {
@@ -92,9 +111,44 @@ BACKBONE_REGISTRY = {
             "output_layers": [0, 1, 2, 3],
         },
     },
+    "convnext_tiny": {
+        "class": ConvNeXtBackbone,
+        "config": {
+            "variant": "convnext_tiny",
+            "output_layers": [0, 1, 2, 3],
+        },
+    },
+    "convnext_base": {
+        "class": ConvNeXtBackbone,
+        "config": {
+            "variant": "convnext_base",
+            "output_layers": [0, 1, 2, 3],
+        },
+    },
 }
 
 HEAD_REGISTRY = {
+    "afrclip": {
+        "class": AFRCLIPHead,
+        "config": {
+            "embed_dim": 768,  # CLIP text encoder outputs 768-dim, visual is 1024
+            "category": "object",
+            "image_size": 224,
+            "patch_size": 14,
+            "use_mpfa": True,
+            "mpfa_kernel": 3,
+            "temperature": 1.0,
+        },
+        "trainable": False,
+    },
+    "mambaad": {
+        "class": MambaADHead,
+        "config": {
+            "embed_dim": 1024,
+            "image_size": 224,
+        },
+        "trainable": True,
+    },
     "patchcore": {
         "class": PatchCoreHead,
         "config": {
@@ -312,6 +366,13 @@ def compute_head_loss(
     elif head_name == "dinomaly":
         return head.compute_training_loss(features)
 
+    elif head_name == "mambaad":
+        output = head(features)
+        loss = head.compute_loss(features, output["decoder_features"])
+        if loss.requires_grad:
+            return loss
+        return loss.clone().detach().requires_grad_(True)
+
     return torch.tensor(0.0, device=device)
 
 
@@ -436,6 +497,9 @@ def run_experiment(
         print(f"\n  Category: {category}")
 
         head, _, _ = create_head(exp_config.head_name)
+        if exp_config.head_name == "afrclip":
+            head.set_backbone(backbone)
+            head.set_category(category)
 
         start_time = time.time()
         result = evaluate_category(

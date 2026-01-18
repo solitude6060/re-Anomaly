@@ -1,0 +1,13 @@
+{
+  "experiment": "dinov3_vitl16 + dinomaly",
+  "backbone": "dinov3_vitl16",
+  "head": "dinomaly",
+  "category": "cable",
+  "dataset": "mvtec_ad",
+  "epochs": 10,
+  "image_size": 224,
+  "auroc": 0.90058095952024,
+  "elapsed_time": 103.00757670402527,
+  "n_train": 224,
+  "n_test": 150
+}

@@ -1,0 +1,13 @@
+{
+  "experiment": "dinov3_vitl16 + patchcore",
+  "backbone": "dinov3_vitl16",
+  "head": "patchcore",
+  "category": "capsule",
+  "dataset": "mvtec_ad",
+  "epochs": 5,
+  "image_size": 224,
+  "auroc": 0.7618667730355007,
+  "elapsed_time": 9.906178951263428,
+  "n_train": 219,
+  "n_test": 132
+}

@@ -1,0 +1,202 @@
+[
+  {
+    "experiment": "dinov3_vitl16 + dinomaly",
+    "backbone": "dinov3_vitl16",
+    "head": "dinomaly",
+    "category": "breakfast_box",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 3.121802806854248,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "dinov3_vitl16 + dinomaly",
+    "backbone": "dinov3_vitl16",
+    "head": "dinomaly",
+    "category": "juice_bottle",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 2.133467435836792,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "dinov3_vitl16 + dinomaly",
+    "backbone": "dinov3_vitl16",
+    "head": "dinomaly",
+    "category": "pushpins",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 1.1875619888305664,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "dinov3_vitl16 + dinomaly",
+    "backbone": "dinov3_vitl16",
+    "head": "dinomaly",
+    "category": "screw_bag",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 0.8369956016540527,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "dinov3_vitl16 + dinomaly",
+    "backbone": "dinov3_vitl16",
+    "head": "dinomaly",
+    "category": "splicing_connectors",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 0.9869933128356934,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "dinov3_vitl16 + patchcore",
+    "backbone": "dinov3_vitl16",
+    "head": "patchcore",
+    "category": "breakfast_box",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 0.9984691143035889,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "dinov3_vitl16 + patchcore",
+    "backbone": "dinov3_vitl16",
+    "head": "patchcore",
+    "category": "juice_bottle",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 0.8770620822906494,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "dinov3_vitl16 + patchcore",
+    "backbone": "dinov3_vitl16",
+    "head": "patchcore",
+    "category": "pushpins",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 0.924673318862915,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "dinov3_vitl16 + patchcore",
+    "backbone": "dinov3_vitl16",
+    "head": "patchcore",
+    "category": "screw_bag",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 0.8111176490783691,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "dinov3_vitl16 + patchcore",
+    "backbone": "dinov3_vitl16",
+    "head": "patchcore",
+    "category": "splicing_connectors",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 1.245159387588501,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "convnext_tiny + dinomaly",
+    "backbone": "convnext_tiny",
+    "head": "dinomaly",
+    "category": "breakfast_box",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 1.7035841941833496,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "convnext_tiny + dinomaly",
+    "backbone": "convnext_tiny",
+    "head": "dinomaly",
+    "category": "juice_bottle",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 1.0322110652923584,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "convnext_tiny + dinomaly",
+    "backbone": "convnext_tiny",
+    "head": "dinomaly",
+    "category": "pushpins",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 1.401371955871582,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "convnext_tiny + dinomaly",
+    "backbone": "convnext_tiny",
+    "head": "dinomaly",
+    "category": "screw_bag",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 1.5629866123199463,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "convnext_tiny + dinomaly",
+    "backbone": "convnext_tiny",
+    "head": "dinomaly",
+    "category": "splicing_connectors",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 1.5261201858520508,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "convnext_tiny + patchcore",
+    "backbone": "convnext_tiny",
+    "head": "patchcore",
+    "category": "breakfast_box",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 1.7345080375671387,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "convnext_tiny + patchcore",
+    "backbone": "convnext_tiny",
+    "head": "patchcore",
+    "category": "juice_bottle",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 1.206925868988037,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "convnext_tiny + patchcore",
+    "backbone": "convnext_tiny",
+    "head": "patchcore",
+    "category": "pushpins",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 1.1231887340545654,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "convnext_tiny + patchcore",
+    "backbone": "convnext_tiny",
+    "head": "patchcore",
+    "category": "screw_bag",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 1.200561285018921,
+    "auroc": 0.0
+  },
+  {
+    "experiment": "convnext_tiny + patchcore",
+    "backbone": "convnext_tiny",
+    "head": "patchcore",
+    "category": "splicing_connectors",
+    "dataset": "mvtec_loco",
+    "error": "default_collate: batch must contain tensors, numpy arrays, numbers, dicts or lists; found <class 'NoneType'>",
+    "elapsed_time": 1.5926108360290527,
+    "auroc": 0.0
+  }
+]

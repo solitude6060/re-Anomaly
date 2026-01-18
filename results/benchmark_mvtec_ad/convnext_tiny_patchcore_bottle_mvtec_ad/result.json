@@ -1,0 +1,13 @@
+{
+  "experiment": "convnext_tiny + patchcore",
+  "backbone": "convnext_tiny",
+  "head": "patchcore",
+  "category": "bottle",
+  "dataset": "mvtec_ad",
+  "epochs": 5,
+  "image_size": 224,
+  "auroc": 0.9658730158730159,
+  "elapsed_time": 130.80245780944824,
+  "n_train": 209,
+  "n_test": 83
+}

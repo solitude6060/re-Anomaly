@@ -1,0 +1,13 @@
+{
+  "experiment": "dinov3_vitl16 + dinomaly",
+  "backbone": "dinov3_vitl16",
+  "head": "dinomaly",
+  "category": "bottle",
+  "dataset": "mvtec_ad",
+  "epochs": 5,
+  "image_size": 224,
+  "auroc": 0.9992063492063492,
+  "elapsed_time": 46.100563764572144,
+  "n_train": 209,
+  "n_test": 83
+}

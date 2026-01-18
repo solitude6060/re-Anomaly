@@ -1,0 +1,161 @@
+{
+  "experiment": "dinov3_vitl16 + rectflow",
+  "backbone": "dinov3_vitl16",
+  "head": "rectflow",
+  "epochs": 100,
+  "image_size": 224,
+  "avg_image_auroc": 0.5,
+  "avg_precision_at_100_recall": 0.7229629178730282,
+  "per_category_results": [
+    {
+      "category": "bottle",
+      "image_auroc": 0.5,
+      "n_train": 209,
+      "n_test": 83,
+      "n_anomalies": 63,
+      "n_normal": 20,
+      "precision_at_100_recall": 0.7590361445783133,
+      "eval_time_seconds": 171.6888484954834
+    },
+    {
+      "category": "cable",
+      "image_auroc": 0.5,
+      "n_train": 224,
+      "n_test": 150,
+      "n_anomalies": 92,
+      "n_normal": 58,
+      "precision_at_100_recall": 0.6133333333333333,
+      "eval_time_seconds": 213.820170879364
+    },
+    {
+      "category": "capsule",
+      "image_auroc": 0.5,
+      "n_train": 219,
+      "n_test": 132,
+      "n_anomalies": 109,
+      "n_normal": 23,
+      "precision_at_100_recall": 0.8257575757575758,
+      "eval_time_seconds": 206.39665126800537
+    },
+    {
+      "category": "carpet",
+      "image_auroc": 0.5,
+      "n_train": 280,
+      "n_test": 117,
+      "n_anomalies": 89,
+      "n_normal": 28,
+      "precision_at_100_recall": 0.7606837606837606,
+      "eval_time_seconds": 247.09109544754028
+    },
+    {
+      "category": "grid",
+      "image_auroc": 0.5,
+      "n_train": 264,
+      "n_test": 78,
+      "n_anomalies": 57,
+      "n_normal": 21,
+      "precision_at_100_recall": 0.7307692307692307,
+      "eval_time_seconds": 199.0329978466034
+    },
+    {
+      "category": "hazelnut",
+      "image_auroc": 0.5,
+      "n_train": 391,
+      "n_test": 110,
+      "n_anomalies": 70,
+      "n_normal": 40,
+      "precision_at_100_recall": 0.6363636363636364,
+      "eval_time_seconds": 315.5601632595062
+    },
+    {
+      "category": "leather",
+      "image_auroc": 0.5,
+      "n_train": 245,
+      "n_test": 124,
+      "n_anomalies": 92,
+      "n_normal": 32,
+      "precision_at_100_recall": 0.7419354838709677,
+      "eval_time_seconds": 204.85391926765442
+    },
+    {
+      "category": "metal_nut",
+      "image_auroc": 0.5,
+      "n_train": 220,
+      "n_test": 115,
+      "n_anomalies": 93,
+      "n_normal": 22,
+      "precision_at_100_recall": 0.808695652173913,
+      "eval_time_seconds": 172.54976201057434
+    },
+    {
+      "category": "pill",
+      "image_auroc": 0.5,
+      "n_train": 267,
+      "n_test": 167,
+      "n_anomalies": 141,
+      "n_normal": 26,
+      "precision_at_100_recall": 0.844311377245509,
+      "eval_time_seconds": 209.74864888191223
+    },
+    {
+      "category": "screw",
+      "image_auroc": 0.5,
+      "n_train": 320,
+      "n_test": 160,
+      "n_anomalies": 119,
+      "n_normal": 41,
+      "precision_at_100_recall": 0.74375,
+      "eval_time_seconds": 236.1544156074524
+    },
+    {
+      "category": "tile",
+      "image_auroc": 0.5,
+      "n_train": 230,
+      "n_test": 117,
+      "n_anomalies": 84,
+      "n_normal": 33,
+      "precision_at_100_recall": 0.717948717948718,
+      "eval_time_seconds": 190.37906074523926
+    },
+    {
+      "category": "toothbrush",
+      "image_auroc": 0.5,
+      "n_train": 60,
+      "n_test": 42,
+      "n_anomalies": 30,
+      "n_normal": 12,
+      "precision_at_100_recall": 0.7142857142857143,
+      "eval_time_seconds": 93.01529264450073
+    },
+    {
+      "category": "transistor",
+      "image_auroc": 0.5,
+      "n_train": 213,
+      "n_test": 100,
+      "n_anomalies": 40,
+      "n_normal": 60,
+      "precision_at_100_recall": 0.4,
+      "eval_time_seconds": 204.23302602767944
+    },
+    {
+      "category": "wood",
+      "image_auroc": 0.5,
+      "n_train": 247,
+      "n_test": 79,
+      "n_anomalies": 60,
+      "n_normal": 19,
+      "precision_at_100_recall": 0.759493670886076,
+      "eval_time_seconds": 221.4312093257904
+    },
+    {
+      "category": "zipper",
+      "image_auroc": 0.5,
+      "n_train": 240,
+      "n_test": 151,
+      "n_anomalies": 119,
+      "n_normal": 32,
+      "precision_at_100_recall": 0.7880794701986755,
+      "eval_time_seconds": 184.82875204086304
+    }
+  ]
+}

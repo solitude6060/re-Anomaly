@@ -1,0 +1,13 @@
+{
+  "experiment": "dinov3_vitl16 + dinomaly",
+  "backbone": "dinov3_vitl16",
+  "head": "dinomaly",
+  "category": "carpet",
+  "dataset": "mvtec_ad",
+  "epochs": 5,
+  "image_size": 224,
+  "auroc": 0.9592696629213483,
+  "elapsed_time": 61.384002447128296,
+  "n_train": 280,
+  "n_test": 117
+}

@@ -24,6 +24,7 @@ dependencies = [
     "imgaug>=0.4.0",
     "pandas>=2.3.3",
     "wandb>=0.15.0",
+    "einops>=0.8.1",
 ]
 
 [project.optional-dependencies]

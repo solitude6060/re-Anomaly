@@ -1,0 +1,13 @@
+{
+  "experiment": "convnext_tiny + patchcore",
+  "backbone": "convnext_tiny",
+  "head": "patchcore",
+  "category": "cable",
+  "dataset": "mvtec_ad",
+  "epochs": 5,
+  "image_size": 224,
+  "auroc": 0.8275862068965518,
+  "elapsed_time": 129.37349772453308,
+  "n_train": 224,
+  "n_test": 150
+}

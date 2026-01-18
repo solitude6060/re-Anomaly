@@ -1,0 +1,23 @@
+[
+  {
+    "experiment": "dinov3_vitl16 + dinomaly",
+    "backbone": "dinov3_vitl16",
+    "head": "dinomaly",
+    "epochs": 50,
+    "image_size": 224,
+    "avg_image_auroc": 0.8060053289608526,
+    "avg_precision_at_100_recall": 0.7531645569620253,
+    "per_category_results": [
+      {
+        "category": "screw",
+        "image_auroc": 0.8060053289608526,
+        "n_train": 320,
+        "n_test": 160,
+        "n_anomalies": 119,
+        "n_normal": 41,
+        "precision_at_100_recall": 0.7531645569620253,
+        "eval_time_seconds": 243.44852018356323
+      }
+    ]
+  }
+]
