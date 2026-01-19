@@ -1,6 +1,6 @@
 # re-Anomaly 完整實驗報告
 
-**生成時間**: 2026-01-18  
+**生成時間**: 2026-01-19  
 **專案狀態**: 積極開發中
 
 ---
@@ -40,6 +40,7 @@
 2. **SALAD** 是邏輯異常的最佳解決方案 (96.11% on LOCO)
 3. **Few-shot**: k=1 即可達到 95.48% AUROC，k=5 達到 99.29%
 4. **CLIP-based zero-shot heads** 已完成 bottle smoke，AF-CLIP 表現最佳 (90.56% on clip_vitb16)
+5. **輕量化全量實驗** 已啟動 (clip_vitb16 zero-shot + ad_dinov3，epoch=1，batch=1)
 
 ### Survey (2023-2026)
 
@@ -63,6 +64,7 @@
 | **PixIO** | `pixio.py` | ✅ 完成 | HuggingFace | ❌ 未在 registry |
 | **CLIP ViT-L/14** | `clip.py` | ✅ 完成 | OpenAI/OpenCLIP | ✅ 已測試 |
 | **CLIP ViT-B/16** | `clip.py` | ✅ 完成 | OpenAI/OpenCLIP | ⚠️ smoke (1/15) |
+| **ConvNeXt-Base (DINOv3)** | `convnext.py` | ✅ 權重下載 | HF DINOv3 | ❌ 未評估 |
 | **SigLIP SO400M** | `clip.py` | ✅ 完成 | OpenCLIP | ❌ 未在 registry |
 | **ConvNeXt-Tiny** | `convnext.py` | ✅ 完成 | timm (IN22k) | ✅ 已測試 |
 | **ConvNeXt-Base** | `convnext.py` | ✅ 完成 | timm (IN22k) | ⚠️ 部分測試 |
@@ -234,8 +236,9 @@ SigLIP SO400M         ❌         ❌          ❌          ❌          ❌    
 1. ⚠️ **MSFlow** - 訓練 bug (shape mismatch)
 2. ⚠️ **MambaAD** - 低性能，需要調參
 3. ⚠️ **Linear Head** - 尚未評估
-4. ⚠️ **CLIP-based heads** - 僅 bottle smoke，需 15/15 全量驗證
-5. ⚠️ **AD-DINOv3** - 僅 bottle smoke，需 15/15 全量驗證
+4. ⚠️ **CLIP-based heads** - 全量實驗進行中 (results/experiment_matrix_light)
+5. ⚠️ **AD-DINOv3** - 全量實驗進行中 (results/experiment_matrix_light)
+6. ⚠️ **ConvNeXt DINOv3 權重** - 下載完成，待整合到實驗矩陣
 
 ### 中優先級 (2週內)
 
@@ -406,6 +409,8 @@ tqdm >= 4.60
 - ✅ 新增 AD-DINOv3 prototype head
 - ✅ 完成 CLIP ViT-B/16 zero-shot smoke (bottle)
 - ✅ 完成 AD-DINOv3 smoke (bottle)
+- ✅ 下載 DINOv3 ConvNeXt 權重 (base/small/large)
+- ⏳ 啟動輕量化全量實驗 (clip_vitb16 zero-shot + ad_dinov3)
 
 ### 2026-01-18
 - ✅ 新增 ConvNeXt-Tiny backbone
