@@ -16,14 +16,16 @@ Survey latest SOTA papers (2024-2025), update experiment plans, implement new ba
 | DINOv3-L + PatchCore | MVTec AD | 448 | 96.85% | Higher-res; weak categories still exist | ✅ Complete |
 
 ### In-Progress Experiments
-- None (Dinomaly full + PatchCore 448 finished)
+- CLIP ViT-B/16 zero-shot heads (anomalyclip/afclip/acd_clip/madpot) full MVTec AD, epoch=1, batch=1
+- AD-DINOv3 full MVTec AD, epoch=1, batch=1
 
 ### Key Gaps
 1. **MVTec AD**: 97.34% (DINOv3+Dinomaly @224) vs 99.6% SOTA (-2.3%) - need higher image_size (518) + better training/decoder tuning
 2. **MVTec LOCO**: 73.53% (PatchCore @224) vs 96.1% SOTA (SALAD) (-22.6%) - must run Plan B SALAD
 3. **Few-shot**: No systematic k-shot matrix run yet (k=1,5,10,20,50,100,200)
-4. **Zero-shot**: AFR-CLIP head exists but not wired into experiment runner; need CLIP backbone integration into scripts + evaluation run
-5. **Survey methods without public code**: PA-CLIP, SuperAD, AnoPLe (cannot implement faithfully without re-derivation)
+4. **Zero-shot**: CLIP-based heads wired; full 15/15 in progress (clip_vitb16)
+5. **ConvNeXt DINOv3**: weights downloaded, pending integration into experiment matrix
+6. **Survey methods without public code**: PA-CLIP, SuperAD, AnoPLe (cannot implement faithfully without re-derivation)
 
 ## Phases
 
@@ -101,10 +103,10 @@ datasets = DatasetFactory.create_multi("mvtec_ad", root="data/mvtec_ad", categor
 - [2026-01-17] Universal Dataset Interface completed with TDD
 
 ## Next Steps (Priority Order)
-1. Wait for Dinomaly full evaluation to complete
-2. Run PatchCore with image_size=448/518
-3. Test PixIO backbone
-4. Implement AFR-CLIP for zero-shot baseline
+1. Wait for lightweight full-dataset runs (clip_vitb16 zero-shot + ad_dinov3) to finish
+2. Add ConvNeXt DINOv3 weights into experiment matrix and run smoke
+3. Run PatchCore with image_size=448/518
+4. Test PixIO backbone
 
 ## Errors Encountered
 - Fixed: dinomaly.py LSP error - replaced `de._has_hook = True` with proper set-based tracking

@@ -12,8 +12,11 @@
 - [x] DINOv2-L (HuggingFace)
 - [x] PixIO (MAE-based, 8 class tokens)
 - [x] CLIP ViT-L/14 (OpenAI/OpenCLIP)
+- [x] CLIP ViT-B/16 (OpenAI/OpenCLIP)
 - [x] SigLIP SO400M (OpenCLIP)
 - [x] ConvNeXt-Tiny (timm, IN22k)
+- [x] ConvNeXt-Base (timm, IN22k)
+- [x] ConvNeXt-Base DINOv3 weights (HF)
 - [x] Swin-Base (HuggingFace)
 
 ### Heads
@@ -50,16 +53,18 @@
 | 組合 | AUROC | 狀態 |
 |------|-------|------|
 | DINOv3-L + PatchCore | 53.98% | ⚠️ 不擅長 |
-| DINOv3-L + SALAD | 待測 | ⏳ |
+| DINOv3-L + SALAD | 96.11% | ✅ |
 
 ---
 
 ## 待完成實驗
 
 ### 高優先級
-- [ ] ConvNeXt 完整 MVTec AD (15類別)
-- [ ] SALAD MVTec LOCO 評估
+- [ ] ConvNeXt 完整 MVTec AD (15類別) + DINOv3 weights
+- [x] SALAD MVTec LOCO 評估
 - [ ] MambaAD 調參優化
+- [ ] CLIP zero-shot heads 全量 (light run in progress)
+- [ ] AD-DINOv3 全量 (light run in progress)
 
 ### 中優先級
 - [ ] Few-shot 實驗 (k=1,5,10,20,50,100,200)
@@ -118,6 +123,12 @@ PYTHONPATH=. uv run python scripts/run_benchmark_suite.py \
 ---
 
 ## 更新日誌
+
+### 2026-01-19
+- 新增 CLIP ViT-B/16 backbone
+- 新增 AnomalyCLIP/AF-CLIP/ACD-CLIP/MADPOT/AD-DINOv3 heads
+- 下載 DINOv3 ConvNeXt 權重 (base/small/large)
+- 啟動輕量化全量實驗 (clip_vitb16 zero-shot + ad_dinov3)
 
 ### 2026-01-18
 - 新增 ConvNeXt-Tiny backbone
