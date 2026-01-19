@@ -1,0 +1,10 @@
+name: madpot
+_target_: src.models.heads.madpot.MADPOTHead
+
+embed_dim: 768
+category: object
+image_size: 224
+temperature: 1.0
+transport_eps: 0.05
+transport_iters: 30
+partial_mass: 0.9

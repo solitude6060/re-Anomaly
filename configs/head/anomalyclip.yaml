@@ -1,0 +1,11 @@
+name: anomalyclip
+_target_: src.models.heads.anomalyclip.AnomalyCLIPHead
+
+embed_dim: 768
+category: object
+object_name: object
+image_size: 224
+temperature: 1.0
+use_object_agnostic: true
+use_global_adapter: true
+adapter_dim: 256

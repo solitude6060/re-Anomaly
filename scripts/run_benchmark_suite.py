@@ -52,9 +52,14 @@ from src.models.backbones.dinov2 import DINOv2Backbone
 from src.models.backbones.dinov3 import DINOv3Backbone
 from src.models.backbones.pixio import PixIOBackbone
 from src.models.backbones.swin import SwinBackbone
+from src.models.heads.acd_clip import ACDCLIPHead
+from src.models.heads.ad_dinov3 import ADDINOv3Head
+from src.models.heads.afclip import AFCLIPHead
 from src.models.heads.afrclip import AFRCLIPHead
+from src.models.heads.anomalyclip import AnomalyCLIPHead
 from src.models.heads.dinomaly import DinomalyHead
 from src.models.heads.fastflow import FastFlowHead
+from src.models.heads.madpot import MADPOTHead
 from src.models.heads.mambaad import MambaADHead
 from src.models.heads.msflow import MSFlowHead
 from src.models.heads.patchcore import PatchCoreHead
@@ -101,6 +106,13 @@ BACKBONE_REGISTRY = {
             "output_layers": [6, 12, 18, 23],
         },
     },
+    "clip_vitb16": {
+        "class": CLIPBackbone,
+        "config": {
+            "variant": "clip_vitb16",
+            "output_layers": [3, 6, 9, 11],
+        },
+    },
     "convnext_tiny": {
         "class": ConvNeXtBackbone,
         "config": {
@@ -137,6 +149,68 @@ HEAD_REGISTRY = {
             "anomaly_score": {"normalize": True},
         },
         "trainable": False,
+    },
+    "anomalyclip": {
+        "class": AnomalyCLIPHead,
+        "config": {
+            "embed_dim": 768,
+            "category": "object",
+            "object_name": "object",
+            "image_size": 224,
+            "temperature": 1.0,
+            "use_object_agnostic": True,
+            "use_global_adapter": True,
+            "adapter_dim": 256,
+        },
+        "trainable": False,
+    },
+    "afclip": {
+        "class": AFCLIPHead,
+        "config": {
+            "embed_dim": 768,
+            "category": "object",
+            "image_size": 224,
+            "temperature": 1.0,
+            "use_scale_weights": True,
+            "attn_hidden_dim": 256,
+        },
+        "trainable": False,
+    },
+    "acd_clip": {
+        "class": ACDCLIPHead,
+        "config": {
+            "embed_dim": 768,
+            "category": "object",
+            "image_size": 224,
+            "temperature": 1.0,
+            "lora_rank": 8,
+            "lora_scale": 1.0,
+        },
+        "trainable": False,
+    },
+    "madpot": {
+        "class": MADPOTHead,
+        "config": {
+            "embed_dim": 768,
+            "category": "object",
+            "image_size": 224,
+            "temperature": 1.0,
+            "transport_eps": 0.05,
+            "transport_iters": 30,
+            "partial_mass": 0.9,
+        },
+        "trainable": False,
+    },
+    "ad_dinov3": {
+        "class": ADDINOv3Head,
+        "config": {
+            "projection_dim": 256,
+            "feature_aggregation": "concat",
+            "normalize_features": True,
+            "use_calibration": True,
+            "calibration_dim": 128,
+        },
+        "trainable": True,
     },
     "dinomaly": {
         "class": DinomalyHead,
@@ -316,6 +390,21 @@ def evaluate(head, head_name: str, features: list[torch.Tensor]):
         elif head_name == "afrclip":
             output = head(features)
             score = output["anomaly_score"]
+        elif head_name == "anomalyclip":
+            output = head(features)
+            score = output["anomaly_score"]
+        elif head_name == "afclip":
+            output = head(features)
+            score = output["anomaly_score"]
+        elif head_name == "acd_clip":
+            output = head(features)
+            score = output["anomaly_score"]
+        elif head_name == "madpot":
+            output = head(features)
+            score = output["anomaly_score"]
+        elif head_name == "ad_dinov3":
+            output = head(features)
+            score = output["anomaly_score"]
         elif head_name == "fastflow":
             output = head(features)
             score = output["anomaly_score"]
@@ -423,6 +512,10 @@ def run_single_experiment(
             sample_features = backbone(sample_batch["image"].to(device))
 
         head = create_head(head_name, sample_features, device)
+
+        if head_name in {"afrclip", "anomalyclip", "afclip", "acd_clip", "madpot"}:
+            head.set_backbone(backbone)
+            head.set_category(category)
 
         # Train if needed
         if HEAD_REGISTRY[head_name].get("trainable", False):

@@ -27,9 +27,14 @@ from src.models.backbones.dinov2 import DINOv2Backbone
 from src.models.backbones.dinov3 import DINOv3Backbone
 from src.models.backbones.pixio import PixIOBackbone
 from src.models.backbones.swin import SwinBackbone
+from src.models.heads.acd_clip import ACDCLIPHead
+from src.models.heads.ad_dinov3 import ADDINOv3Head
+from src.models.heads.afclip import AFCLIPHead
 from src.models.heads.afrclip import AFRCLIPHead
+from src.models.heads.anomalyclip import AnomalyCLIPHead
 from src.models.heads.dinomaly import DinomalyHead
 from src.models.heads.fastflow import FastFlowHead
+from src.models.heads.madpot import MADPOTHead
 from src.models.heads.mambaad import MambaADHead
 from src.models.heads.msflow import MSFlowHead
 from src.models.heads.patchcore import PatchCoreHead
@@ -78,6 +83,13 @@ BACKBONE_REGISTRY = {
         "config": {
             "variant": "clip_vitl14",
             "output_layers": [6, 12, 18, 23],
+        },
+    },
+    "clip_vitb16": {
+        "class": CLIPBackbone,
+        "config": {
+            "variant": "clip_vitb16",
+            "output_layers": [3, 6, 9, 11],
         },
     },
     "siglip_so400m_384": {
@@ -138,6 +150,65 @@ HEAD_REGISTRY = {
             "use_mpfa": True,
             "mpfa_kernel": 3,
             "temperature": 1.0,
+        },
+        "trainable": False,
+    },
+    "anomalyclip": {
+        "class": AnomalyCLIPHead,
+        "config": {
+            "embed_dim": 768,
+            "category": "object",
+            "object_name": "object",
+            "image_size": 224,
+            "temperature": 1.0,
+            "use_object_agnostic": True,
+            "use_global_adapter": True,
+            "adapter_dim": 256,
+        },
+        "trainable": False,
+    },
+    "afclip": {
+        "class": AFCLIPHead,
+        "config": {
+            "embed_dim": 768,
+            "category": "object",
+            "image_size": 224,
+            "temperature": 1.0,
+            "use_scale_weights": True,
+            "attn_hidden_dim": 256,
+        },
+        "trainable": False,
+    },
+    "acd_clip": {
+        "class": ACDCLIPHead,
+        "config": {
+            "embed_dim": 768,
+            "category": "object",
+            "image_size": 224,
+            "temperature": 1.0,
+            "lora_rank": 8,
+            "lora_scale": 1.0,
+        },
+        "trainable": False,
+    },
+    "madpot": {
+        "class": MADPOTHead,
+        "config": {
+            "embed_dim": 768,
+            "category": "object",
+            "image_size": 224,
+            "temperature": 1.0,
+            "transport_eps": 0.05,
+            "transport_iters": 30,
+            "partial_mass": 0.9,
+        },
+        "trainable": False,
+    },
+    "ad_dinov3": {
+        "class": ADDINOv3Head,
+        "config": {
+            "feature_aggregation": "concat",
+            "normalize_features": True,
         },
         "trainable": False,
     },
@@ -401,6 +472,39 @@ def fit_patchcore(
     head.fit_from_patches(all_patches.to(device))
 
 
+def fit_ad_dinov3(
+    backbone: nn.Module,
+    head: ADDINOv3Head,
+    train_dataset: MVTecADDataset,
+    device: torch.device,
+) -> None:
+    print(f"  Fitting AD-DINOv3 prototype with {len(train_dataset)} samples...")
+    backbone.eval()
+    all_features = []
+
+    with torch.no_grad():
+        for i in tqdm(
+            range(len(train_dataset)), desc="  Extracting features", leave=False
+        ):
+            sample = train_dataset[i]
+            image = sample["image"].unsqueeze(0).to(device)
+            features = backbone(image)
+            aggregated = head._aggregate_features(features)
+            flat = aggregated.flatten(2).mean(dim=2)
+            if head.normalize_features:
+                flat = torch.nn.functional.normalize(flat, p=2, dim=1)
+            all_features.append(flat)
+
+    if not all_features:
+        return
+
+    stacked = torch.cat(all_features, dim=0)
+    prototype = stacked.mean(dim=0)
+    if head.normalize_features:
+        prototype = torch.nn.functional.normalize(prototype, p=2, dim=0)
+    head.prototype = prototype
+
+
 def evaluate_category(
     backbone: nn.Module,
     head: nn.Module,
@@ -424,6 +528,11 @@ def evaluate_category(
 
     if head_name == "patchcore":
         fit_patchcore(backbone, head, train_dataset, device)
+    elif head_name == "ad_dinov3":
+        fit_ad_dinov3(backbone, head, train_dataset, device)
+    elif head_name in {"afrclip", "anomalyclip", "afclip", "acd_clip", "madpot"}:
+        head.set_backbone(backbone)
+        head.set_category(category)
     elif is_trainable:
         train_loader = DataLoader(
             train_dataset,
@@ -497,7 +606,13 @@ def run_experiment(
         print(f"\n  Category: {category}")
 
         head, _, _ = create_head(exp_config.head_name)
-        if exp_config.head_name == "afrclip":
+        if exp_config.head_name in {
+            "afrclip",
+            "anomalyclip",
+            "afclip",
+            "acd_clip",
+            "madpot",
+        }:
             head.set_backbone(backbone)
             head.set_category(category)
 

@@ -1,0 +1,9 @@
+name: acd_clip
+_target_: src.models.heads.acd_clip.ACDCLIPHead
+
+embed_dim: 768
+category: object
+image_size: 224
+temperature: 1.0
+lora_rank: 8
+lora_scale: 1.0

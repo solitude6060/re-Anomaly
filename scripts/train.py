@@ -9,6 +9,11 @@ from torch.utils.data import DataLoader
 
 from src.models.backbones import DINOv2Backbone, DINOv3Backbone, PixIOBackbone
 from src.models.heads import (
+    ADDINOv3Head,
+    AnomalyCLIPHead,
+    AFCLIPHead,
+    ACDCLIPHead,
+    MADPOTHead,
     FastFlowHead,
     LinearHead,
     MSFlowHead,
@@ -32,6 +37,11 @@ HEAD_REGISTRY = {
     "simplenet": SimpleNetHead,
     "salad": SALADHead,
     "linear": LinearHead,
+    "anomalyclip": AnomalyCLIPHead,
+    "afclip": AFCLIPHead,
+    "acd_clip": ACDCLIPHead,
+    "madpot": MADPOTHead,
+    "ad_dinov3": ADDINOv3Head,
 }
 
 

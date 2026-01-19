@@ -1,0 +1,5 @@
+name: ad_dinov3
+_target_: src.models.heads.ad_dinov3.ADDINOv3Head
+
+feature_aggregation: concat
+normalize_features: true

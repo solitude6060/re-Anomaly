@@ -1,0 +1,9 @@
+name: afclip
+_target_: src.models.heads.afclip.AFCLIPHead
+
+embed_dim: 768
+category: object
+image_size: 224
+temperature: 1.0
+use_scale_weights: true
+attn_hidden_dim: 256
