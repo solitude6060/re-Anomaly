@@ -1,0 +1,21 @@
+{
+  "experiment": "clip_vitb16 + anomalyclip",
+  "backbone": "clip_vitb16",
+  "head": "anomalyclip",
+  "epochs": 1,
+  "image_size": 224,
+  "avg_image_auroc": 0.3007936507936508,
+  "avg_precision_at_100_recall": 0.7590361445783133,
+  "per_category_results": [
+    {
+      "category": "bottle",
+      "image_auroc": 0.3007936507936508,
+      "n_train": 209,
+      "n_test": 83,
+      "n_anomalies": 63,
+      "n_normal": 20,
+      "precision_at_100_recall": 0.7590361445783133,
+      "eval_time_seconds": 4.636662006378174
+    }
+  ]
+}
