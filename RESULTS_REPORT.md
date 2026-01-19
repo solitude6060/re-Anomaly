@@ -39,13 +39,22 @@
 1. **DINOv3-L + Dinomaly** 是 MVTec AD 最佳組合 (97.34%)
 2. **SALAD** 是邏輯異常的最佳解決方案 (96.11% on LOCO)
 3. **Few-shot**: k=1 即可達到 95.48% AUROC，k=5 達到 99.29%
-4. **AFR-CLIP** 零樣本能力待驗證
+4. **CLIP-based zero-shot heads** 已完成 bottle smoke，AF-CLIP 表現最佳 (90.56% on clip_vitb16)
+
+### Survey (2023-2026)
+
+完整跨領域調研詳見 `SURVEY_REPORT.md`，核心概念整理如下：
+- Foundation backbones (DINOv3/CLIP) + prompt alignment 逐漸成為零樣本主流
+- Adapter/LoRA + multi-scale local features 用於提升 anomaly localization
+- Diffusion-based reconstruction 以「健康重建」降低假陽性
+- Cross-domain / multimodal fusion (vision + sensor/log) 強化泛化能力
+- Time-series 轉向 physics-informed attention 與時頻融合
 
 ---
 
 ## 模型實作狀態
 
-### Backbones (8/8 完成)
+### Backbones (9/9 完成)
 
 | Backbone | 實作檔案 | 狀態 | 預訓練 | 測試狀態 |
 |----------|----------|------|--------|----------|
@@ -53,12 +62,13 @@
 | **DINOv2-L** | `dinov2.py` | ✅ 完成 | HuggingFace | ⚠️ smoke (1/15) |
 | **PixIO** | `pixio.py` | ✅ 完成 | HuggingFace | ❌ 未在 registry |
 | **CLIP ViT-L/14** | `clip.py` | ✅ 完成 | OpenAI/OpenCLIP | ✅ 已測試 |
+| **CLIP ViT-B/16** | `clip.py` | ✅ 完成 | OpenAI/OpenCLIP | ⚠️ smoke (1/15) |
 | **SigLIP SO400M** | `clip.py` | ✅ 完成 | OpenCLIP | ❌ 未在 registry |
 | **ConvNeXt-Tiny** | `convnext.py` | ✅ 完成 | timm (IN22k) | ✅ 已測試 |
 | **ConvNeXt-Base** | `convnext.py` | ✅ 完成 | timm (IN22k) | ⚠️ 部分測試 |
 | **Swin-Base** | `swin.py` | ✅ 完成 | HuggingFace | ✅ 已測試 |
 
-### Heads (10/10 完成)
+### Heads (16/16 完成)
 
 | Head | 實作檔案 | 類型 | 訓練需求 | 測試狀態 |
 |------|----------|------|----------|----------|
@@ -66,6 +76,11 @@
 | **PatchCore** | `patchcore.py` | Memory Bank | 無 | ✅ 15/15 |
 | **MambaAD** | `mambaad.py` | SSM Decoder | 20+ epochs | ⚠️ 低性能 (1/15) |
 | **AFR-CLIP** | `afrclip.py` | Zero-shot | 無 | ⚠️ smoke (1/15) |
+| **AnomalyCLIP** | `anomalyclip.py` | Zero-shot | 無 | ⚠️ smoke (1/15) |
+| **AF-CLIP** | `afclip.py` | Zero-shot | 無 | ⚠️ smoke (1/15) |
+| **ACD-CLIP** | `acd_clip.py` | Zero-shot | 無 | ⚠️ smoke (1/15) |
+| **MADPOT** | `madpot.py` | Zero-shot | 無 | ⚠️ smoke (1/15) |
+| **AD-DINOv3** | `ad_dinov3.py` | Prototype | 無 | ⚠️ smoke (1/15) |
 | **SALAD** | `salad.py` | Dual-stream | 外部依賴 | ✅ LOCO 5/5 |
 | **FastFlow** | `fastflow.py` | Normalizing Flow | 20+ epochs | ✅ 15/15 + smoke |
 | **MSFlow** | `msflow.py` | Multi-scale Flow | 20+ epochs | ❌ 訓練 bug |
@@ -107,6 +122,11 @@
 | MVTec AD | dinov3_vitl16 | fastflow | 224 | 30 | 2/15 | 50.00% | `results/quick_test/dinov3_vitl16_fastflow/results.json` | partial/smoke |
 | MVTec AD | dinov3_vitl16 | rectflow | 224 | 100 | 15/15 | 50.00% | `results/dinov3_full/dinov3_vitl16_rectflow/results.json` | full |
 | MVTec AD | clip_vitl14 | afrclip | 224 | 1 | 1/15 | 10.40% | `results/experiment_matrix/clip_vitl14_afrclip/results.json` | smoke |
+| MVTec AD | clip_vitb16 | anomalyclip | 224 | 1 | 1/15 | 30.08% | `results/experiment_matrix/clip_vitb16_anomalyclip/results.json` | smoke |
+| MVTec AD | clip_vitb16 | afclip | 224 | 1 | 1/15 | 90.56% | `results/experiment_matrix/clip_vitb16_afclip/results.json` | smoke |
+| MVTec AD | clip_vitb16 | acd_clip | 224 | 1 | 1/15 | 41.67% | `results/experiment_matrix/clip_vitb16_acd_clip/results.json` | smoke |
+| MVTec AD | clip_vitb16 | madpot | 224 | 1 | 1/15 | 50.00% | `results/experiment_matrix/clip_vitb16_madpot/results.json` | smoke |
+| MVTec AD | dinov3_vitl16 | ad_dinov3 | 224 | 1 | 1/15 | 73.25% | `results/experiment_matrix/dinov3_vitl16_ad_dinov3/results.json` | smoke |
 | MVTec LOCO | dinov3_vitl16 | salad |  |  | 5/5 | 96.11% | `results/salad_loco/final_average.txt` | full |
 | MVTec LOCO | dinov3_vitl16 | patchcore | 224 |  | 5/5 | 73.53% | `results/plan_a_mvtec_loco_dinov3/results.json` | full |
 | MVTec LOCO | dinov2_vitb14 | patchcore | 224 |  | 5/5 | 69.46% | `results/plan_a_mvtec_loco/results.json` | full |
@@ -191,15 +211,16 @@
 ### 實驗矩陣狀態
 
 ```
-                    PatchCore   Dinomaly    MambaAD     AFR-CLIP    FastFlow    SALAD    RectFlow  SimpleNet
-DINOv3-L              ✅         ✅          ⚠️          ⚠️          ✅          ✅        ✅        ✅
-DINOv2-L              ✅         ❌          ❌          ❌          ❌          ❌        ❌        ❌
-CLIP ViT-L/14         ❌         ❌          ❌          ⚠️          ❌          ❌        ❌        ❌
-ConvNeXt-Tiny         ✅         ❌          ❌          ❌          ❌          ❌        ❌        ❌
-ConvNeXt-Base         ⚠️         ❌          ❌          ❌          ❌          ❌        ❌        ❌
-Swin-Base             ✅         ❌          ❌          ❌          ✅          ❌        ❌        ❌
-PixIO                 ❌         ❌          ❌          ❌          ❌          ❌        ❌        ❌
-SigLIP SO400M         ❌         ❌          ❌          ❌          ❌          ❌        ❌        ❌
+                    PatchCore   Dinomaly    MambaAD     AFR-CLIP    AnomalyCLIP  AF-CLIP    ACD-CLIP   MADPOT     AD-DINOv3  FastFlow    SALAD    RectFlow  SimpleNet
+DINOv3-L              ✅         ✅          ⚠️          ❌          ❌           ❌         ❌         ❌         ✅         ✅          ✅        ✅        ✅
+DINOv2-L              ✅         ❌          ❌          ❌          ❌           ❌         ❌         ❌         ❌         ❌          ❌        ❌        ❌
+CLIP ViT-L/14         ❌         ❌          ❌          ⚠️          ❌           ❌         ❌         ❌         ❌         ❌          ❌        ❌        ❌
+CLIP ViT-B/16         ❌         ❌          ❌          ❌          ⚠️           ⚠️         ⚠️         ⚠️         ❌         ❌          ❌        ❌        ❌
+ConvNeXt-Tiny         ✅         ❌          ❌          ❌          ❌           ❌         ❌         ❌         ❌         ❌          ❌        ❌        ❌
+ConvNeXt-Base         ⚠️         ❌          ❌          ❌          ❌           ❌         ❌         ❌         ❌         ❌          ❌        ❌        ❌
+Swin-Base             ✅         ❌          ❌          ❌          ❌           ❌         ❌         ❌         ❌         ✅          ❌        ❌        ❌
+PixIO                 ❌         ❌          ❌          ❌          ❌           ❌         ❌         ❌         ❌         ❌          ❌        ❌        ❌
+SigLIP SO400M         ❌         ❌          ❌          ❌          ❌           ❌         ❌         ❌         ❌         ❌          ❌        ❌        ❌
 
 ✅ = 已完成    ⚠️ = 部分完成/低性能/僅 smoke    ❌ = 未完成
 ```
@@ -213,6 +234,8 @@ SigLIP SO400M         ❌         ❌          ❌          ❌          ❌    
 1. ⚠️ **MSFlow** - 訓練 bug (shape mismatch)
 2. ⚠️ **MambaAD** - 低性能，需要調參
 3. ⚠️ **Linear Head** - 尚未評估
+4. ⚠️ **CLIP-based heads** - 僅 bottle smoke，需 15/15 全量驗證
+5. ⚠️ **AD-DINOv3** - 僅 bottle smoke，需 15/15 全量驗證
 
 ### 中優先級 (2週內)
 
@@ -270,21 +293,25 @@ learning_rate: 1e-4 → 5e-5
 
 ### 長期改進 (3個月)
 
-#### 1. SuperAD 實現
-- 訓練-free 方法
-- DINOv2 + 智能參考圖選擇
-- 目標: 免訓練達到 95%+
+#### 1. Unified Anomaly Detector (多頭融合)
+- `scripts/run_unified.py`：結合 FastFlow + Discriminator + Memory Bank + SDG
+- 參數可調：`--use_sdg`/`--flow_weight`/`--disc_weight`/`--memory_weight`
 
 #### 2. Ensemble 集成
-```python
-Ensemble = Dinomaly + PatchCore + AFR-CLIP
-預期提升: +1~2% AUROC
-```
+- `scripts/run_ensemble.py`：PatchCore + FastFlow + RectFlow ensemble
+- 可輸出各子模型分數與融合分數
 
-#### 3. 生產部署
-- ONNX 導出
-- TensorRT 加速
-- 邊緣設備適配
+#### 3. 弱類別專項優化
+- `scripts/optimize_weak_categories.py`：針對 screw/cable/wood/capsule/toothbrush 掃參
+
+#### 4. Backbone Pretraining (MAE/DINO-DAPT)
+- `scripts/pretrain.py`：支援 `pretrain_type=mae` 或 `dino_dapt`
+- 配置：`configs/pretrain/*.yaml`
+
+#### 5. 生產部署
+- `scripts/export.py`：ONNX export + runtime 驗證
+- `scripts/evaluate.py`：Hydra 評估，輸出 miss/overkill/precision/recall
+- `scripts/train.py`：Hydra 訓練 (PatchCore / FastFlow / MSFlow / SimpleNet / Linear)
 
 ---
 
@@ -318,7 +345,7 @@ PYTHONPATH=. uv run python scripts/run_experiment_matrix.py \
   --heads dinomaly
 
 # 運行全量實驗（AD/LOCO/Few-shot）
-bash scripts/pending_experiments.sh all
+bash scripts/run_full_experiments.sh
 
 # 運行綜合基準測試
 PYTHONPATH=. uv run python scripts/run_benchmark_suite.py \
@@ -326,10 +353,33 @@ PYTHONPATH=. uv run python scripts/run_benchmark_suite.py \
   --output-dir results/benchmark \
   --smoke-test
 
-# 運行 MVTec LOCO
+# 運行 MVTec LOCO (Plan A)
 PYTHONPATH=. uv run python scripts/run_plan_a_loco.py \
   --data_root data/mvtec_loco \
   --output_dir results/benchmark_loco
+
+# Unified Anomaly Detector
+PYTHONPATH=. uv run python scripts/run_unified.py \
+  --output_dir results/unified_full \
+  --epochs 100
+
+# Ensemble (PatchCore + FastFlow + RectFlow)
+PYTHONPATH=. uv run python scripts/run_ensemble.py \
+  --output_dir results/ensemble
+
+# Weak-category optimization
+PYTHONPATH=. uv run python scripts/optimize_weak_categories.py \
+  --output_dir results/weak_optimization
+
+# Backbone pretraining (MAE)
+PYTHONPATH=. uv run python scripts/pretrain.py \
+  pretrain_type=mae data.root_path=data/smt_pretrain
+
+# Export ONNX
+PYTHONPATH=. uv run python scripts/export.py \
+  --config configs/exp/patchcore.yaml \
+  --checkpoint outputs/patchcore/final.pth \
+  --output exports/patchcore.onnx
 ```
 
 ### 依賴項
@@ -349,6 +399,13 @@ tqdm >= 4.60
 ---
 
 ## 更新日誌
+
+### 2026-01-19
+- ✅ 新增 CLIP ViT-B/16 backbone (smoke)
+- ✅ 新增 AnomalyCLIP/AF-CLIP/ACD-CLIP/MADPOT heads
+- ✅ 新增 AD-DINOv3 prototype head
+- ✅ 完成 CLIP ViT-B/16 zero-shot smoke (bottle)
+- ✅ 完成 AD-DINOv3 smoke (bottle)
 
 ### 2026-01-18
 - ✅ 新增 ConvNeXt-Tiny backbone
