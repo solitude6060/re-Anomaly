@@ -65,6 +65,8 @@
 - [ ] MambaAD 調參優化
 - [ ] CLIP zero-shot heads 全量 (light run in progress)
 - [ ] AD-DINOv3 全量 (light run in progress)
+- [x] 小模型實驗 (convnext_tiny/base + fastflow/simplenet, dinov2_vitb14 + fastflow/simplenet)
+- [ ] convnext_base + patchcore 需縮小 coreset 或跳過
 
 ### 中優先級
 - [ ] Few-shot 實驗 (k=1,5,10,20,50,100,200)
@@ -128,7 +130,8 @@ PYTHONPATH=. uv run python scripts/run_benchmark_suite.py \
 - 新增 CLIP ViT-B/16 backbone
 - 新增 AnomalyCLIP/AF-CLIP/ACD-CLIP/MADPOT/AD-DINOv3 heads
 - 下載 DINOv3 ConvNeXt 權重 (base/small/large)
-- 啟動輕量化全量實驗 (clip_vitb16 zero-shot + ad_dinov3)
+- 完成小模型實驗 (convnext_tiny/base + fastflow/simplenet, dinov2_vitb14 + fastflow/simplenet)
+- 中止 convnext_base + patchcore (低記憶體下耗時過長)
 
 ### 2026-01-18
 - 新增 ConvNeXt-Tiny backbone
