@@ -1,0 +1,161 @@
+{
+  "experiment": "dinov2_vitb14 + fastflow",
+  "backbone": "dinov2_vitb14",
+  "head": "fastflow",
+  "epochs": 1,
+  "image_size": 224,
+  "avg_image_auroc": 0.9190678057995032,
+  "avg_precision_at_100_recall": 0.8566083092893634,
+  "per_category_results": [
+    {
+      "category": "bottle",
+      "image_auroc": 0.9412698412698413,
+      "n_train": 209,
+      "n_test": 83,
+      "n_anomalies": 63,
+      "n_normal": 20,
+      "precision_at_100_recall": 0.875,
+      "eval_time_seconds": 5.690620183944702
+    },
+    {
+      "category": "cable",
+      "image_auroc": 0.77380059970015,
+      "n_train": 224,
+      "n_test": 150,
+      "n_anomalies": 92,
+      "n_normal": 58,
+      "precision_at_100_recall": 0.6174496644295302,
+      "eval_time_seconds": 8.80188274383545
+    },
+    {
+      "category": "capsule",
+      "image_auroc": 0.8907060231352214,
+      "n_train": 219,
+      "n_test": 132,
+      "n_anomalies": 109,
+      "n_normal": 23,
+      "precision_at_100_recall": 0.8449612403100775,
+      "eval_time_seconds": 8.094590425491333
+    },
+    {
+      "category": "carpet",
+      "image_auroc": 0.9983948635634029,
+      "n_train": 280,
+      "n_test": 117,
+      "n_anomalies": 89,
+      "n_normal": 28,
+      "precision_at_100_recall": 0.956989247311828,
+      "eval_time_seconds": 8.478685140609741
+    },
+    {
+      "category": "grid",
+      "image_auroc": 0.9891395154553049,
+      "n_train": 264,
+      "n_test": 78,
+      "n_anomalies": 57,
+      "n_normal": 21,
+      "precision_at_100_recall": 0.9661016949152542,
+      "eval_time_seconds": 5.735991716384888
+    },
+    {
+      "category": "hazelnut",
+      "image_auroc": 0.9989285714285715,
+      "n_train": 391,
+      "n_test": 110,
+      "n_anomalies": 70,
+      "n_normal": 40,
+      "precision_at_100_recall": 0.958904109589041,
+      "eval_time_seconds": 9.581660509109497
+    },
+    {
+      "category": "leather",
+      "image_auroc": 1.0,
+      "n_train": 245,
+      "n_test": 124,
+      "n_anomalies": 92,
+      "n_normal": 32,
+      "precision_at_100_recall": 1.0,
+      "eval_time_seconds": 7.829618692398071
+    },
+    {
+      "category": "metal_nut",
+      "image_auroc": 0.9310850439882697,
+      "n_train": 220,
+      "n_test": 115,
+      "n_anomalies": 93,
+      "n_normal": 22,
+      "precision_at_100_recall": 0.8303571428571429,
+      "eval_time_seconds": 5.637640476226807
+    },
+    {
+      "category": "pill",
+      "image_auroc": 0.9241680305510093,
+      "n_train": 267,
+      "n_test": 167,
+      "n_anomalies": 141,
+      "n_normal": 26,
+      "precision_at_100_recall": 0.8867924528301887,
+      "eval_time_seconds": 8.368224859237671
+    },
+    {
+      "category": "screw",
+      "image_auroc": 0.7698298831727813,
+      "n_train": 320,
+      "n_test": 160,
+      "n_anomalies": 119,
+      "n_normal": 41,
+      "precision_at_100_recall": 0.7484276729559748,
+      "eval_time_seconds": 8.231046676635742
+    },
+    {
+      "category": "tile",
+      "image_auroc": 1.0,
+      "n_train": 230,
+      "n_test": 117,
+      "n_anomalies": 84,
+      "n_normal": 33,
+      "precision_at_100_recall": 1.0,
+      "eval_time_seconds": 6.890969514846802
+    },
+    {
+      "category": "toothbrush",
+      "image_auroc": 0.9333333333333333,
+      "n_train": 60,
+      "n_test": 42,
+      "n_anomalies": 30,
+      "n_normal": 12,
+      "precision_at_100_recall": 0.9090909090909091,
+      "eval_time_seconds": 2.6003592014312744
+    },
+    {
+      "category": "transistor",
+      "image_auroc": 0.7479166666666667,
+      "n_train": 213,
+      "n_test": 100,
+      "n_anomalies": 40,
+      "n_normal": 60,
+      "precision_at_100_recall": 0.4444444444444444,
+      "eval_time_seconds": 6.931516647338867
+    },
+    {
+      "category": "wood",
+      "image_auroc": 0.9236842105263158,
+      "n_train": 247,
+      "n_test": 79,
+      "n_anomalies": 60,
+      "n_normal": 19,
+      "precision_at_100_recall": 0.9090909090909091,
+      "eval_time_seconds": 6.640534400939941
+    },
+    {
+      "category": "zipper",
+      "image_auroc": 0.9637605042016807,
+      "n_train": 240,
+      "n_test": 151,
+      "n_anomalies": 119,
+      "n_normal": 32,
+      "precision_at_100_recall": 0.9015151515151515,
+      "eval_time_seconds": 6.999499559402466
+    }
+  ]
+}
