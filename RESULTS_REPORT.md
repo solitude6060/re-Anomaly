@@ -40,7 +40,7 @@
 2. **SALAD** 是邏輯異常的最佳解決方案 (96.11% on LOCO)
 3. **Few-shot**: k=1 即可達到 95.48% AUROC，k=5 達到 99.29%
 4. **CLIP-based zero-shot heads** 已完成 bottle smoke，AF-CLIP 表現最佳 (90.56% on clip_vitb16)
-5. **輕量化全量實驗** 已啟動 (clip_vitb16 zero-shot + ad_dinov3，epoch=1，batch=1)
+5. **輕量化全量實驗** 已完成 (convnext_tiny/base + fastflow/simplenet，dinov2_vitb14 + fastflow/simplenet)
 
 ### Survey (2023-2026)
 
@@ -129,6 +129,12 @@
 | MVTec AD | clip_vitb16 | acd_clip | 224 | 1 | 1/15 | 41.67% | `results/experiment_matrix/clip_vitb16_acd_clip/results.json` | smoke |
 | MVTec AD | clip_vitb16 | madpot | 224 | 1 | 1/15 | 50.00% | `results/experiment_matrix/clip_vitb16_madpot/results.json` | smoke |
 | MVTec AD | dinov3_vitl16 | ad_dinov3 | 224 | 1 | 1/15 | 73.25% | `results/experiment_matrix/dinov3_vitl16_ad_dinov3/results.json` | smoke |
+| MVTec AD | convnext_tiny | fastflow | 224 | 1 | 15/15 | 84.46% | `results/experiment_matrix_small/convnext_tiny_fastflow/results.json` | full (small) |
+| MVTec AD | convnext_tiny | simplenet | 224 | 1 | 15/15 | 67.87% | `results/experiment_matrix_small/convnext_tiny_simplenet/results.json` | full (small) |
+| MVTec AD | convnext_base | fastflow | 224 | 1 | 15/15 | 90.04% | `results/experiment_matrix_small/convnext_base_fastflow/results.json` | full (small) |
+| MVTec AD | convnext_base | simplenet | 224 | 1 | 15/15 | 72.28% | `results/experiment_matrix_small/convnext_base_simplenet/results.json` | full (small) |
+| MVTec AD | dinov2_vitb14 | fastflow | 224 | 1 | 15/15 | 91.91% | `results/experiment_matrix_small/dinov2_vitb14_fastflow/results.json` | full (small) |
+| MVTec AD | dinov2_vitb14 | simplenet | 224 | 1 | 15/15 | 53.72% | `results/experiment_matrix_small/dinov2_vitb14_simplenet/results.json` | full (small) |
 | MVTec LOCO | dinov3_vitl16 | salad |  |  | 5/5 | 96.11% | `results/salad_loco/final_average.txt` | full |
 | MVTec LOCO | dinov3_vitl16 | patchcore | 224 |  | 5/5 | 73.53% | `results/plan_a_mvtec_loco_dinov3/results.json` | full |
 | MVTec LOCO | dinov2_vitb14 | patchcore | 224 |  | 5/5 | 69.46% | `results/plan_a_mvtec_loco/results.json` | full |
@@ -239,6 +245,7 @@ SigLIP SO400M         ❌         ❌          ❌          ❌          ❌    
 4. ⚠️ **CLIP-based heads** - 全量實驗進行中 (results/experiment_matrix_light)
 5. ⚠️ **AD-DINOv3** - 全量實驗進行中 (results/experiment_matrix_light)
 6. ⚠️ **ConvNeXt DINOv3 權重** - 下載完成，待整合到實驗矩陣
+7. ⚠️ **ConvNeXt-Base + PatchCore** - 低記憶體下耗時過長，需改採縮小 coreset 或跳過
 
 ### 中優先級 (2週內)
 
@@ -410,7 +417,8 @@ tqdm >= 4.60
 - ✅ 完成 CLIP ViT-B/16 zero-shot smoke (bottle)
 - ✅ 完成 AD-DINOv3 smoke (bottle)
 - ✅ 下載 DINOv3 ConvNeXt 權重 (base/small/large)
-- ⏳ 啟動輕量化全量實驗 (clip_vitb16 zero-shot + ad_dinov3)
+- ✅ 完成輕量化全量實驗 (convnext_tiny/base + fastflow/simplenet, dinov2_vitb14 + fastflow/simplenet)
+- ⚠️ convnext_base + patchcore 低記憶體下耗時過長，已中止
 
 ### 2026-01-18
 - ✅ 新增 ConvNeXt-Tiny backbone
